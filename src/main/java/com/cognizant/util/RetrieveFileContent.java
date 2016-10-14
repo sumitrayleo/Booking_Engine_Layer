@@ -1,29 +1,47 @@
 package com.cognizant.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Properties;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Component;
 
+import com.cognizant.orchestration.dto.AssetInfo;
 import com.cognizant.orchestration.dto.DeviceInformation;
 import com.cognizant.orchestration.exception.BookingApplException;
 
 @Component
 public class RetrieveFileContent {
 
-	public DeviceInformation getFileContent(String fileName)
-	{
-		System.out.println("Inside get file content file name " + fileName);
-		final Properties props = new Properties();
+	public AssetInfo getFileContent(final String filePath, final String deviceIdRequest, final String uuidRequest, final String regionRequest) {
+		AssetInfo asset = null;
+
 		try {
-		props.load(new FileInputStream(fileName));
-		} catch (IOException e) {
-			throw new BookingApplException("Error ocurred while retrieving stream");
-		}
-		final DeviceInformation deviceRequest = new DeviceInformation();
-		deviceRequest.setAppName(props.getProperty("AppName"));
-		deviceRequest.setDeviceId(props.getProperty("DeviceId"));
-		return deviceRequest;
+			final File jsonFile = new File(filePath);
+			final ObjectMapper mapper = new ObjectMapper();
+			if (jsonFile.exists() && jsonFile.length() != 0) {
+				final FileInputStream fileInputStream = new FileInputStream(jsonFile);
+				DeviceInformation existingValue = mapper.readValue(fileInputStream, DeviceInformation.class);
+				asset = (AssetInfo) CollectionUtils.find(existingValue.getDevices(), new Predicate(){
+
+					@Override
+					public boolean evaluate(Object object) {
+						final AssetInfo assetInfo = (AssetInfo)object;
+						final String assetId = assetInfo.getAssetId();
+						final String uuidId = assetInfo.getUuid();
+						final String regionId = assetInfo.getRegion();
+
+						return deviceIdRequest.equalsIgnoreCase(assetId)&& uuidRequest.equalsIgnoreCase(uuidId) && regionRequest.equalsIgnoreCase(regionId);
+					}});
+				fileInputStream.close();
+			}
+		return asset;
+	} catch (IOException e) {
+		throw new BookingApplException("Error ocurred while retrieving stream");
 	}
+	}
+	
 }

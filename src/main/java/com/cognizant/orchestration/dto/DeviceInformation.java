@@ -1,29 +1,27 @@
 package com.cognizant.orchestration.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
-public class DeviceInformation implements Serializable{
-	
-	/**
-	 * 
-	 */
+public class DeviceInformation implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private String deviceId;
-    private String appName;
+	private List<AssetInfo> devices;
+	private String appName;
 
-    public String getDeviceId() {
-        return deviceId;
-    }
+	
+	public List<AssetInfo> getDevices() {
+		return devices;
+	}
 
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
+	public void setDevices(List<AssetInfo> devices) {
+		this.devices = devices;
+	}
 
-    public String getAppName() {
-        return appName;
-    }
+	public String getAppName() {
+		return appName;
+	}
 
-    public void setAppName(String appName) {
-        this.appName = appName;
-    }
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
 }

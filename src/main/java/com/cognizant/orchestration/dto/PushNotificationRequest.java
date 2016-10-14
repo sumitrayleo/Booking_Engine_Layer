@@ -1,11 +1,16 @@
 package com.cognizant.orchestration.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel(value = "PushNotificationRequest")
 public class PushNotificationRequest {
 
 	private String memberId;
     private String deviceId;
     private Double latitude;
     private Double longitude;
+    @ApiModelProperty(value = "System Identifier", allowableValues = "Airlines,Hotels,Car Rental")
     private String identifier;
     private String token;
 
@@ -40,7 +45,6 @@ public class PushNotificationRequest {
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
-
     public String getIdentifier() {
         return identifier;
     }

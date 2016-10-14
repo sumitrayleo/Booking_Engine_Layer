@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <flow name="LoginFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/login" allowedMethods="POST" metadata:id="a3dff7e3-b562-4671-a2ea-bb84b11d84d6" doc:name="Recieve Login Request">
+            <http:response-builder statusCode="200" reasonPhrase="OK"/>
+            <http:error-response-builder statusCode="400" reasonPhrase="Bad Request"/>
+        </http:listener>
+        <json:json-to-object-transformer returnClass="com.cognizant.dto.LoginRequest" doc:name="Create Login Request" mapper-ref="objectMapper"/>
+        <choice doc:name="Check Empty Login Request">
+            <when expression="#[payload.userName!=null and payload.password!=null]">
+                <set-variable variableName="authToken" value="#[java.util.UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;&quot;)]" doc:name="Generate Authentication Token"/>
+                <dw:transform-message metadata:id="48bd564f-fdf3-4b70-a736-04c556ed8861" doc:name="Transform Message">
+                    <dw:input-payload mimeType="application/java"/>
+                    <dw:input-variable mimeType="application/java" variableName="authToken"/>
+                    <dw:input-outbound-property propertyName="#[authToken]"/>
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	authorizationToken: flowVars.authToken
+} as :object {
+	class : "com.cognizant.dto.LoginResponse"
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+
+            <otherwise>
+                <scripting:transformer doc:name="Throw Exception">
+					<scripting:script engine="Groovy"><![CDATA[throw new IllegalArgumentException("Null  call parameters. Malformed login request.");]]></scripting:script>
+                </scripting:transformer>
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="LogoutFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/logout" doc:name="Receive Logout Request" allowedMethods="POST">
+            <http:response-builder statusCode="200" reasonPhrase="OK"/>
+            <http:error-response-builder statusCode="400" reasonPhrase="Bad Request"/>
+        </http:listener>
+        <dw:transform-message metadata:id="8f98378d-3b77-4c35-9f2c-87c356817ae6" doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	status: true
+} as :object {
+	class : "com.cognizant.dto.LogOutResponse"
+}]]></dw:set-payload>
+        </dw:transform-message>
+
+    </flow>
+</mule>

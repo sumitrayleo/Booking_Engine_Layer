@@ -4,14 +4,16 @@ import com.cognizant.dto.BaseResponse;
 
 public class RegisterDeviceResponse extends BaseResponse {
 
-	private String deviceId;
+	private AssetInfo deviceInfo;
 
-	public String getDeviceId() {
-		return deviceId;
+	public AssetInfo getDeviceInfo() {
+		return deviceInfo;
 	}
 
-	public void setDeviceId(String deviceId) {
-		this.deviceId = deviceId;
+	public void setDeviceInfo(AssetInfo deviceInfo) {
+		this.deviceInfo = deviceInfo;
 	}
+
+
 
 }

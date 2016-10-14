@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:jersey="http://www.mulesoft.org/schema/mule/jersey"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jersey http://www.mulesoft.org/schema/mule/jersey/current/mule-jersey.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <spring:beans>
+        <spring:bean id="deviceResource" name="DeviceResource" class="com.cognizant.orchestration.resource.DeviceResource"/>
+		<spring:bean class='com.cognizant.orchestration.swagger.bootstrap.Bootstrap'
+			id='bootstrap' init-method='start' lazy-init='false' name="Bootstrap"/>
+		<spring:bean class='io.swagger.mule.ApiListingJSON' id='apiListingJSON' name="ApiListingJSON"/>
+		<spring:bean class='io.swagger.jaxrs.config.BeanConfig'
+			id='swaggerConfig' name="BeanConfig">
+			<spring:property name='resourcePackage'
+				value='com.cognizant.orchestration.resource' />
+			<spring:property name='version' value='1.0.0' />
+
+			<spring:property name='basePath' value='/service/swagger' />
+			<spring:property name='scan' value='true' />
+            <spring:property name="host" value="0.0.0.0:${http.port}"/>
+		</spring:bean>
+        <spring:bean id="pushResource" name="PushResource" class="com.cognizant.orchestration.resource.PushResource"/>
+        <spring:bean id="authorizationResource" name="AuthorizationResource" class="com.cognizant.orchestration.resource.AuthorizationResource"/>
+    </spring:beans>
+
+
+	<flow name="SwaggerDeviceConfigurationFlow" initialState="started">
+		<http:listener config-ref="HTTP_Listener_Configuration"
+			path="/swagger/*" 
+			doc:name="HTTP" />
+		<echo-component doc:name="Echo" />
+		<choice doc:name="Choice">
+			<when expression="#[message.inboundProperties['http.method'] == 'POST']">
+				<set-variable value="#[message.payload == null ? [] : message.payload]" variableName="originalPayload"
+					doc:name="Variable"></set-variable>
+
+			</when>
+			<otherwise>
+				<logger
+					message="Query params received  #[message.inboundProperties['http.query.params']]"
+					level="INFO" doc:name="Logger" />
+
+			</otherwise>
+		</choice>
+		<jersey:resources doc:name="REST">
+			<component>
+				<spring-object bean="apiListingJSON" />
+			</component>
+			<component>
+				<spring-object bean="deviceResource" />
+			</component>
+			<component>
+				<spring-object bean="pushResource" />
+			</component>
+			<component>
+				<spring-object bean="authorizationResource" />
+			</component>
+		</jersey:resources>
+		<choice doc:name="Choice">
+			<when expression="!(payload == null)">
+				<object-to-string-transformer doc:name="Object to String"></object-to-string-transformer>
+					<set-variable value="#[message.payload]" variableName="flowRef"
+					doc:name="Variable"></set-variable>
+				<choice doc:name="Payload choice">
+					<when
+						expression="#[flowVars['originalPayload'] != null]">
+					
+						<set-payload value="#[ flowVars.originalPayload]"
+							doc:name="Set Payload"></set-payload>
+						<set-property propertyName="Content-Type" value="application/json"
+							doc:name="Property" />
+						<remove-property propertyName="Content-Length"
+							doc:name="Property" />
+						<echo-component doc:name="Echo" />
+						<choice doc:name="Flow choice">
+						<when
+						expression="#[flowRef == 'DeviceConfigurationFlow']">
+						<http:request config-ref="HTTP_Request_Configuration_Global"
+							path="/api/booking/device/info" method="POST" source="#[payload]"
+							target="#[payload]" doc:name="Register Device">
+
+
+						</http:request>
+						</when>
+						<when
+						expression="#[flowRef == 'PushNotificationFlow']">
+						<http:request config-ref="HTTP_Request_Configuration_Global"
+							path="/api/booking/notify/info" method="POST" source="#[payload]"
+							target="#[payload]" doc:name="Send Push Notification">
+
+
+						</http:request>
+						</when>
+							<when
+						expression="#[flowRef == 'LoginFlow']">
+						<http:request config-ref="HTTP_Request_Configuration_Global"
+							path="/api/booking/login" method="POST" source="#[payload]"
+							target="#[payload]" doc:name="Login User">
+
+
+						</http:request>
+						</when>
+							<when
+						expression="#[flowRef == 'LogoutFlow']">
+						<http:request config-ref="HTTP_Request_Configuration_Global"
+							path="/api/booking/logout" method="POST" source="#[payload]"
+							target="#[payload]" doc:name="Logout User">
+
+
+						</http:request>
+						</when>
+						</choice>
+						<echo-component doc:name="Echo" />
+
+					</when>
+					<when
+						expression="#[flowRef == 'RetrieveDeviceDetailsFlow' and message.inboundProperties['http.query.params'].?assetId != null]">
+						<echo-component doc:name="Echo" />
+						<remove-property propertyName="Content-Length"
+							doc:name="Property" />
+						<http:request config-ref="HTTP_Request_Configuration_Global"
+							path="/api/booking/device/info" target="#[payload]" method="GET"
+							doc:name="Get Device Details">
+
+							<http:request-builder>
+                                <http:query-param paramName="uuid" value="#[message.inboundProperties['http.query.params'].uuid]"/>
+                                <http:query-param paramName="region" value="#[message.inboundProperties['http.query.params'].region]"/>
+                                <http:query-param paramName="assetId" value="#[message.inboundProperties['http.query.params'].assetId]"/>
+							</http:request-builder>
+						</http:request>
+						<echo-component doc:name="Echo" />
+
+					</when>
+					<otherwise>
+
+						<logger
+							message="Payload for swagger#[message.payloadAs(java.lang.String)]"
+							level="INFO" doc:name="Logger" />
+
+					</otherwise>
+
+				</choice>
+			</when>
+			<otherwise>
+				<logger message="No flows found" level="INFO" doc:name="Logger" />
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="swaggerUiFlow">
+		<http:listener config-ref="HTTP_Listener_Configuration"
+			path="/swagger/api-docs/*" doc:name="HTTP" />
+		<http:static-resource-handler
+			resourceBase="${app.home}/docs" defaultFile="index.html"
+			doc:name="HTTP Static Resource Handler" />
+	</flow>
+
+
+
+</mule>

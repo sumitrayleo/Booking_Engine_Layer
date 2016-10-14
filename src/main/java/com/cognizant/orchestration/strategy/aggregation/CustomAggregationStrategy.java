@@ -44,7 +44,9 @@ public class CustomAggregationStrategy implements AggregationStrategy {
 				
 			}
 		}
-		result.getMessage().setPayload(pushNotificationResponse);
+		if(result!=null){
+			result.getMessage().setPayload(pushNotificationResponse);
+		}
 		return result;
 	}
 
