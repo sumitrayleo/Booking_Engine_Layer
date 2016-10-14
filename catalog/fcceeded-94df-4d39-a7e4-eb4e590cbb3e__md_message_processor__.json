@@ -1,0 +1,16 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "Reservation_Response_From_Service"
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "Reservation_For_Push_Notification"
+        }
+    },
+    "id": "fcceeded-94df-4d39-a7e4-eb4e590cbb3e",
+    "version": "5.2.0.0"
+}

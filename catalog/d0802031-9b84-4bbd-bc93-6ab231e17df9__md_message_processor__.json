@@ -1,0 +1,22 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "PushNotificationRespForGCM"
+        },
+        "flowVariables": {
+            "token": {
+                "connectorName": "#_custom_mule_metadata_type_#",
+                "typeId": "RegistrationToken"
+            }
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "GCMPushNotifyReq"
+        }
+    },
+    "id": "d0802031-9b84-4bbd-bc93-6ab231e17df9",
+    "version": "5.2.0.0"
+}

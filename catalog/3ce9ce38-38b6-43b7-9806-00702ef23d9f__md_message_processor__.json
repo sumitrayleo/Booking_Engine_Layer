@@ -1,0 +1,16 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "POIResp"
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "POIResponse"
+        }
+    },
+    "id": "3ce9ce38-38b6-43b7-9806-00702ef23d9f",
+    "version": "5.2.0.0"
+}

@@ -1,0 +1,16 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "PushNotifyRequest"
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "POIRequest"
+        }
+    },
+    "id": "c282339a-f56e-40b7-b988-eeb31409da82",
+    "version": "5.2.0.0"
+}

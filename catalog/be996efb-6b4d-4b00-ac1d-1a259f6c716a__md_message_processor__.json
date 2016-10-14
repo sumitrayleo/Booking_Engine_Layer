@@ -1,0 +1,19 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "DeviceInformation"
+        },
+        "flowVariables": {
+            "deviceId": {}
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "RegisterDeviceResponse"
+        }
+    },
+    "id": "be996efb-6b4d-4b00-ac1d-1a259f6c716a",
+    "version": "5.2.0.0"
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:ws="http://www.mulesoft.org/schema/mule/ws" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="localhost" port="8080" doc:name="HTTP Listener Configuration" basePath="service"/>
+    <!-- <http:request-config name="HTTP_Request_Configuration" protocol="HTTPS" host="test-reserve.drivemint.com"  doc:name="HTTP Request Configuration"/> -->
+    <spring:beans>
+        <spring:bean id="objectMapper" name="ObjectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
+        <spring:bean id="saltedHashUtil" name="SaltedHashUtil" class="com.cognizant.util.SaltedHashUtil"/>
+    </spring:beans>
+    <http:request-config name="AV" protocol="HTTPS" host="test-reserve.drivemint.com" port="443" connectionIdleTimeout="3000000" responseTimeout="3000000" doc:name="HTTP Request Configuration" basePath="webservices/index.php">
+        <http:proxy host="proxy.cognizant.com" port="6050" username="402237" password="Sour_2020"/>
+    </http:request-config>
+    <!-- <validation:config name="Validation_Configuration" doc:name="Validation Configuration"/> -->
+    <flow name="AVLoginFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/login" allowedMethods="POST" doc:name="Recieve Login Request">
+            <http:response-builder statusCode="200"/>
+        </http:listener>
+        <echo-component doc:name="Log the payload recieved"/>
+        <json:json-to-object-transformer returnClass="com.cognizant.dto.LoginRequest" mapper-ref="objectMapper" doc:name="JSON to Object"/>
+        <echo-component doc:name="Log the payload after transformation"/>
+        <set-payload value="#[payload]" doc:name="Set Login Request"/>
+        <enricher doc:name="Message Enricher" target="#[payload.password]">
+            <flow-ref name="SaltedHashFlow" doc:name="SaltedHashFlow"/>
+        </enricher>
+        <logger message="Original Payload : #[payload]" level="INFO" doc:name="Log Parameters before service call"/>
+        <http:request config-ref="AV" path="/WSUser/WSRest" method="POST" doc:name="AV call" sendBodyMode="NEVER">
+            <http:request-builder>
+                <http:query-param paramName="action" value="driverWithRestrictions"/>
+                <http:query-param paramName="user" value="#[payload.user]"/>
+                <http:query-param paramName="saltedHash" value="#[payload.password]"/>
+                <http:query-param paramName="timestamp" value="#[sessionVars.timestamp]"/>
+                <http:query-param paramName="billcode" value="mobile"/>
+            </http:request-builder>
+        </http:request>
+    </flow>
+    <sub-flow name="SaltedHashFlow">
+        <invoke name="SaltedHashUtil" object-ref="saltedHashUtil" method="generateSaltedHash" methodArguments="#[payload.password]" methodArgumentTypes="java.lang.String" doc:name="SaltedHashUtil"/>
+        <set-session-variable variableName="timestamp" value="#[server.dateTime]" doc:name="Session Variable"/>
+    </sub-flow>
+    
+
+
+</mule>

@@ -1,0 +1,16 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "POI_Response_From_Service"
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "POI_For_Push_Notification"
+        }
+    },
+    "id": "8ab36f3c-5243-4f35-84c6-05cb2f47994c",
+    "version": "5.2.0.0"
+}

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+    <http:request-config name="POIServiceConfiguration" host="localhost" port="8082" basePath="booking-engine-poi" doc:name="HTTP Request Configuration"/>
+    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8082" basePath="booking-engine-reservation" doc:name="HTTP Request Configuration" connectionIdleTimeout="3000000"/>
+    <http:request-config name="GCMConfiguration" protocol="HTTPS" host="gcm-http.googleapis.com" port="443" doc:name="HTTP Request Configuration">
+    </http:request-config>
+    <flow name="pushnotificationflowFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/notify/info" allowedMethods="POST" doc:name="Recieve Push Notification Request"/>
+        <json:json-to-object-transformer returnClass="com.cognizant.orchestration.dto.PushNotificationRequest" mapper-ref="objectMapper" doc:name="Create PushNotificationRequest"/>
+        <validation:is-not-empty config-ref="Validation_Configuration" value="#[payload.identifier]" message="System Identifier cannot be empty, please provide a value" exceptionClass="com.cognizant.orchestration.exception.BookingApplException" doc:name="Validate System Identifier"/>
+        <choice doc:name="Determine System Type">
+            <when expression="payload.identifier == &quot;Airlines&quot;">
+                <flow-ref name="airlinesSub_Flow" doc:name="AirlinesSubFlow"/>
+            </when>
+            <when expression="payload.identifier == &quot;Hotels&quot;">
+                <flow-ref name="hotelsSub_Flow" doc:name="HotelsSubFlow"/>
+            </when>
+            <when expression="payload.identifier == &quot;Car Rental&quot;">
+                <async doc:name="Async">
+                    <flow-ref name="carRentalsSubFlow" doc:name="CarRentalsSubFlow"/>
+                </async>
+            </when>
+            <otherwise>
+                <scripting:transformer returnClass="com.cognizant.orchestration.exception.BookingApplException" doc:name="Throw Exception">
+                    <scripting:script engine="Groovy"><![CDATA[throw new com.cognizant.orchestration.exception.BookingApplException(
+"Please provide a valid system identifier");]]></scripting:script>
+                </scripting:transformer>
+            </otherwise>
+        </choice>
+        <dw:transform-message metadata:id="722ec85e-f73b-4607-bad9-3bbe22b85cb3" doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	message: "Congratulations!!! You have done it!!!!",
+	success: true
+} as :object {
+	class : "com.cognizant.dto.BaseResponse"
+}]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <sub-flow name="carRentalsSubFlow">
+        <set-payload value="#[payload]" doc:name="Set Payload"/>
+        <expression-component doc:name="Set Member Id and App Registration Token in Flow Vars"><![CDATA[flowVars.memberId = payload.memberId;
+flowVars.token = payload.token]]></expression-component>
+
+
+        <scatter-gather doc:name="Scatter-Gather">
+            <custom-aggregation-strategy class="com.cognizant.orchestration.strategy.aggregation.CustomAggregationStrategy"/>
+            <threading-profile maxThreadsActive="2" maxThreadsIdle="2" poolExhaustedAction="DISCARD_OLDEST" maxBufferSize="2"/>
+            <processor-chain >
+                <dw:transform-message metadata:id="c282339a-f56e-40b7-b988-eeb31409da82" doc:name="Create PointOfInterestRequest">
+                    <dw:input-payload mimeType="application/java"/>
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	location: {
+		latitude: payload.latitude,
+		longitude: payload.longitude
+	}
+} as :object {
+	class : "com.cognizant.client.dto.PointOfInterestRequest"
+}]]></dw:set-payload>
+                </dw:transform-message>
+                <http:request config-ref="POIServiceConfiguration" path="/api/info/getAllPointsOfInterest" method="POST" source="#[payload]" target="#[payload]" doc:name="Call POI Service"/>
+                <json:json-to-object-transformer returnClass="com.cognizant.client.dto.PointOfInterestResponse" mapper-ref="objectMapper" doc:name="Consume Point Of Interest Response from Service"/>
+                <dw:transform-message metadata:id="8ab36f3c-5243-4f35-84c6-05cb2f47994c" doc:name="Transform Message">
+                    <dw:input-payload mimeType="application/java"/>
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload.pointOfInterests map ((pointOfInterest , indexOfPointOfInterest) -> {
+	driveDistance: {
+		driveDistance: pointOfInterest.driveDistanceDetails.driveDistance as :number,
+		landMarkInstructions: pointOfInterest.driveDistanceDetails.landMarkInstructions,
+		latitude: pointOfInterest.driveDistanceDetails.latitude,
+		longitude: pointOfInterest.driveDistanceDetails.longitude
+	},
+	name: pointOfInterest.name,
+	promoOffers: {
+		loyaltyCode: pointOfInterest.promotionalOffers.loyaltyCode,
+		rules: pointOfInterest.promotionalOffers.rules map ((rule , indexOfRule) -> {
+			category: rule.category,
+			description: rule.description,
+			discount: rule.discount,
+			discountType: rule.discountType,
+			promoCodeId: rule.promoCodeId
+		})
+	},
+	specialInstructions: pointOfInterest.specialInstructions
+} as :object {
+	class : "com.cognizant.orchestration.dto.PointOfInterest"
+})]]></dw:set-payload>
+                </dw:transform-message>
+            </processor-chain>
+            <processor-chain >
+                <dw:transform-message metadata:id="8c933cce-b332-40b9-b36e-075b81ea8344" doc:name="Create ReservationRequest">
+                    <dw:input-payload doc:sample="sample_data\PointOfInterestRequest.dwl" mimeType="application/java"/>
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	latitude: payload.latitude,
+	longitude: payload.longitude,
+	memberId: payload.memberId
+} as :object {
+	class : "com.cognizant.client.dto.ReservationRequest"
+}]]></dw:set-payload>
+                </dw:transform-message>
+                <http:request config-ref="HTTP_Request_Configuration" path="/api/info/getCurrentandFutureReservations" method="POST" source="#[payload]" target="#[payload]" sendBodyMode="ALWAYS" doc:name="Call Reservation Service"/>
+                <json:json-to-object-transformer returnClass="com.cognizant.client.dto.ReservationResponse" ignoreBadInput="true" mapper-ref="objectMapper" doc:name="Consume Reservation Response from Service"/>
+                <dw:transform-message metadata:id="fcceeded-94df-4d39-a7e4-eb4e590cbb3e" doc:name="Transform Message">
+                    <dw:input-payload mimeType="application/java"/>
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload.reservations map ((reservation , indexOfReservation) -> {
+	bookingPrice: reservation.bookingPrice as :number,
+	category: reservation.category,
+	companyName: reservation.companyName,
+	companyWebsite: reservation.companyWebsite,
+	endDateTime: reservation.endDateTime,
+	promoOffers: {
+		loyaltyCode: reservation.promotionalOffers.loyaltyCode,
+		rules: reservation.promotionalOffers.rules map ((rule , indexOfRule) -> {
+			category: rule.category,
+			description: rule.description,
+			discount: rule.discount,
+			discountType: rule.discountType,
+			promoCodeId: rule.promoCodeId
+		})
+	},
+	reservationId: reservation.reservationId,
+	specialInstructions: reservation.specialInstructions,
+	startDateTime: reservation.startDateTime
+} as :object {
+	class : "com.cognizant.orchestration.dto.Reservation"
+})]]></dw:set-payload>
+                </dw:transform-message>
+            </processor-chain>
+
+        </scatter-gather>
+        <expression-component doc:name="Setting MemberId from FlowVars to Payload"><![CDATA[payload.memberId = flowVars.memberId;]]></expression-component>
+        <dw:transform-message doc:name="Transform Message" metadata:id="d0802031-9b84-4bbd-bc93-6ab231e17df9">
+            <dw:input-payload mimeType="application/java"/>
+            <dw:input-variable mimeType="application/java" variableName="token"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	data: {
+		memberId: payload.memberId,
+		poi: payload.poi map ((poi , indexOfPoi) -> {
+			driveDistance: poi.driveDistance,
+			name: poi.name,
+			promoOffers: poi.promoOffers,
+			specialInstructions: poi.specialInstructions
+		}),
+		reservations: payload.reservations map ((reservation , indexOfReservation) -> {
+			bookingPrice: reservation.bookingPrice,
+			category: reservation.category,
+			companyName: reservation.companyName,
+			companyWebsite: reservation.companyWebsite,
+			driveDistance: reservation.driveDistance,
+			endDateTime: reservation.endDateTime,
+			promoOffers: reservation.promoOffers,
+			reservationId: reservation.reservationId,
+			specialInstructions: reservation.specialInstructions,
+			startDateTime: reservation.startDateTime
+		})
+	},
+	to: flowVars.token
+} as :object {
+	class : "com.cognizant.orchestration.dto.PushNotifyGCMRequest"
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Log Payload Before GCM call"/>
+        <http:request config-ref="GCMConfiguration" path="/gcm/send" method="POST" sendBodyMode="ALWAYS" doc:name="Call GCM service" source="#[payload]" target="#[payload]">
+            <http:request-builder>
+                <http:header headerName="content-type" value="application/json"/>
+                <http:header headerName="authorization" value="key=${gcm.server.key}"/>
+
+
+
+            </http:request-builder>
+        </http:request>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Log Response from GCM"/>
+
+
+
+    </sub-flow>
+    <sub-flow name="airlinesSub_Flow">
+        <echo-component doc:name="Echo"/>
+    </sub-flow>
+    <sub-flow name="hotelsSub_Flow">
+        <echo-component doc:name="Echo"/>
+    </sub-flow>
+</mule>
