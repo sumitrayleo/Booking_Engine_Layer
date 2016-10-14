@@ -17,11 +17,11 @@ public class RegisterDeviceToFileTransformer {
 
 	@Transformer
 	public InputStream fromDeviceInformationToFile(final DeviceInformation deviceRequest) throws BookingApplException {
-		System.out.println("Inside fromDeviceInformationToFile");
 		final Properties props = new Properties();
-		props.setProperty("DeviceId", deviceRequest.getDeviceId());
+		props.setProperty("DeviceId",
+				deviceRequest.getDeviceIds().toString().replaceAll("\\[|\\]", "").replaceAll(", ", ","));
 		props.setProperty("AppName", deviceRequest.getAppName());
-		
+
 		final ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
 			props.store(output, null);
@@ -31,6 +31,5 @@ public class RegisterDeviceToFileTransformer {
 		final ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
 		return input;
 	}
-	
-	
+
 }

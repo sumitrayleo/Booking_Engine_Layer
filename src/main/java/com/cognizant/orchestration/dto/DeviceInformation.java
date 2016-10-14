@@ -1,6 +1,7 @@
 package com.cognizant.orchestration.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class DeviceInformation implements Serializable{
 	
@@ -8,16 +9,16 @@ public class DeviceInformation implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String deviceId;
+	private List<String> deviceIds;
     private String appName;
 
-    public String getDeviceId() {
-        return deviceId;
-    }
+    public List<String> getDeviceIds() {
+		return deviceIds;
+	}
 
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
+	public void setDeviceIds(List<String> deviceIds) {
+		this.deviceIds = deviceIds;
+	}
 
     public String getAppName() {
         return appName;
