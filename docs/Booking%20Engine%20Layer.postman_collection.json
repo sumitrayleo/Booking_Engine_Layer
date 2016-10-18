@@ -1,0 +1,73 @@
+{
+	"id": "84a0a7c3-fd96-bdc0-ab3e-08f12529398a",
+	"name": "Booking Engine Layer",
+	"description": "",
+	"order": [
+		"70561788-ac46-f94e-0413-e2c7329c217d",
+		"a0cf2f77-ceec-ffea-34e5-11fbfc91fc43",
+		"47e92275-d923-8b0e-fb17-5ef4e62037ad"
+	],
+	"folders": [],
+	"timestamp": 1476797519514,
+	"owner": 0,
+	"public": false,
+	"requests": [
+		{
+			"id": "47e92275-d923-8b0e-fb17-5ef4e62037ad",
+			"headers": "Content-Type: application/json\n",
+			"url": "{{RootUrl}}/service/api/booking/device/info?deviceIds=1234,5678",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "GET",
+			"data": null,
+			"dataMode": "params",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1476797851146,
+			"name": "Device Ids Retrieval",
+			"description": "",
+			"collectionId": "84a0a7c3-fd96-bdc0-ab3e-08f12529398a",
+			"responses": []
+		},
+		{
+			"id": "70561788-ac46-f94e-0413-e2c7329c217d",
+			"headers": "Content-Type: application/json\n",
+			"url": "{{RootUrl}}/service/api/booking/notify/info",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1476797865089,
+			"name": "Push Notification Request",
+			"description": "",
+			"collectionId": "84a0a7c3-fd96-bdc0-ab3e-08f12529398a",
+			"responses": [],
+			"rawModeData": "{\n\"memberId\":\"1\",\n\"latitude\":50,\n\"longitude\":89.5,\n\"deviceId\":\"1234\",\n\"identifier\":\"Car Rental\"\n}"
+		},
+		{
+			"id": "a0cf2f77-ceec-ffea-34e5-11fbfc91fc43",
+			"headers": "Content-Type: application/json\n",
+			"url": "{{RootUrl}}/service/api/booking/device/info",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1476797857490,
+			"name": "Device Ids Registration",
+			"description": "",
+			"collectionId": "84a0a7c3-fd96-bdc0-ab3e-08f12529398a",
+			"responses": [],
+			"rawModeData": "{\n\t\"deviceIds\":[\"1234\",\"5678\"],\n\t\"appName\":\"EHI\"\n}"
+		}
+	]
+}

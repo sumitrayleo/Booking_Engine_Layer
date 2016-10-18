@@ -42,23 +42,26 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 		<spring:bean id="retrieveFileContent" name="RetrieveFileContent"
 			class="com.cognizant.util.RetrieveFileContent" scope="singleton" />
 		<spring:bean class='com.cognizant.orchestration.resource.DeviceResource'
-			id='deviceResource'></spring:bean>
+			id='deviceResource' name="DeviceResource"></spring:bean>
 		<spring:bean class='com.cognizant.orchestration.swagger.bootstrap.Bootstrap'
-			id='bootstrap' init-method='start' lazy-init='false' />
-		<spring:bean class='io.swagger.mule.ApiListingJSON' id='apiListingJSON' />
+			id='bootstrap' init-method='start' lazy-init='false' name="Bootstrap"/>
+		<spring:bean class='io.swagger.mule.ApiListingJSON' id='apiListingJSON' name="ApiListingJSON"/>
 		<spring:bean class='io.swagger.jaxrs.config.BeanConfig'
-			id='swaggerConfig'>
+			id='swaggerConfig' name="BeanConfig">
 			<spring:property name='resourcePackage'
 				value='com.cognizant.orchestration.resource' />
 			<spring:property name='version' value='1.0.0' />
-			<spring:property name='host' value='localhost:8080' />
+
 			<spring:property name='basePath' value='/service/swagger' />
 			<spring:property name='scan' value='true' />
+            <spring:property name="host" value="0.0.0.0:${http.port}"/>
 		</spring:bean>
+        <spring:bean id="objectMapper" name="ObjectMapper" class="org.codehaus.jackson.map.ObjectMapper" scope="singleton"/>
 	</spring:beans>
 	<http:request-config basePath='service'
-		doc:name='HTTP Request Configuration' host='localhost'
-		name='HTTP_Request_Configuration_global' port='8080' />
+		doc:name='HTTP Request Configuration' host='0.0.0.0'
+		name='HTTP_Request_Configuration_Global' port='${http.port}' />
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="${http.port}" basePath="service" doc:name="HTTP Listener Configuration"/>
 	<flow name="DeviceConfigurationFlow">
 		<http:listener config-ref="HTTP_Listener_Configuration"
 			path="/api/booking/device/info" allowedMethods="POST" doc:name="Registed Device Id">
@@ -208,7 +211,7 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 						<echo-component doc:name="Echo" />
 
 
-						<http:request config-ref="HTTP_Request_Configuration_global"
+						<http:request config-ref="HTTP_Request_Configuration_Global"
 							path="/api/booking/device/info" method="POST" source="#[payload]"
 							target="#[payload]" doc:name="Register Device">
 
@@ -222,13 +225,13 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 						<echo-component doc:name="Echo" />
 						<remove-property propertyName="Content-Length"
 							doc:name="Property" />
-						<http:request config-ref="HTTP_Request_Configuration_global"
+						<http:request config-ref="HTTP_Request_Configuration_Global"
 							path="/api/booking/device/info" target="#[payload]" method="GET"
 							doc:name="Get Device Details">
 
 							<http:request-builder>
-								<http:query-param paramName="deviceIds"
-									value="#[message.inboundProperties['http.query.params'].deviceIds]" />
+                                <http:query-param paramName="deviceIds" value="#[message.inboundProperties['http.query.params'].deviceIds]"/>
+
 							</http:request-builder>
 						</http:request>
 						<echo-component doc:name="Echo" />
