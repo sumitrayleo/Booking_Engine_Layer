@@ -46,7 +46,8 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
 %output application/json
 ---
 {
-	message: "Congratulations!!! You have done it!!!!",
+	message: "Thanks for your interest in our service,
+we will send you the desired information shortly!!!",
 	success: true
 } as :object {
 	class : "com.cognizant.dto.BaseResponse"

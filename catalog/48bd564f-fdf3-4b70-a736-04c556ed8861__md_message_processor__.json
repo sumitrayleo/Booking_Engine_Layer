@@ -1,0 +1,21 @@
+{
+    "inputMessageMetadata": {
+        "flowVariables": {
+            "authToken": {
+                "connectorName": "#_custom_mule_metadata_type_#",
+                "typeId": "AuthorizationToken"
+            }
+        },
+        "outboundProperties": {
+            "#[authToken]": {}
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "LoginResponse"
+        }
+    },
+    "id": "48bd564f-fdf3-4b70-a736-04c556ed8861",
+    "version": "5.2.0.0"
+}
