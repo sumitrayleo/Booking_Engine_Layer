@@ -41,27 +41,15 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 			scope="singleton" />
 		<spring:bean id="retrieveFileContent" name="RetrieveFileContent"
 			class="com.cognizant.util.RetrieveFileContent" scope="singleton" />
-		<spring:bean class='com.cognizant.orchestration.resource.DeviceResource'
-			id='deviceResource' name="DeviceResource"></spring:bean>
-		<spring:bean class='com.cognizant.orchestration.swagger.bootstrap.Bootstrap'
-			id='bootstrap' init-method='start' lazy-init='false' name="Bootstrap"/>
-		<spring:bean class='io.swagger.mule.ApiListingJSON' id='apiListingJSON' name="ApiListingJSON"/>
-		<spring:bean class='io.swagger.jaxrs.config.BeanConfig'
-			id='swaggerConfig' name="BeanConfig">
-			<spring:property name='resourcePackage'
-				value='com.cognizant.orchestration.resource' />
-			<spring:property name='version' value='1.0.0' />
 
-			<spring:property name='basePath' value='/service/swagger' />
-			<spring:property name='scan' value='true' />
-            <spring:property name="host" value="0.0.0.0:${http.port}"/>
-		</spring:bean>
+		
         <spring:bean id="objectMapper" name="ObjectMapper" class="org.codehaus.jackson.map.ObjectMapper" scope="singleton"/>
 	</spring:beans>
 	<http:request-config basePath='service'
 		doc:name='HTTP Request Configuration' host='0.0.0.0'
 		name='HTTP_Request_Configuration_Global' port='${http.port}' />
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="${http.port}" basePath="service" doc:name="HTTP Listener Configuration"/>
+
 	<flow name="DeviceConfigurationFlow">
 		<http:listener config-ref="HTTP_Listener_Configuration"
 			path="/api/booking/device/info" allowedMethods="POST" doc:name="Registed Device Id">
@@ -130,7 +118,7 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 			counterVariableName="index" doc:name="For Each DeviceId from Request">
 
 
-			<expression-filter expression="#[deviceIdsFromFile.deviceIds.contains(payload)]"
+			<expression-filter expression="#[deviceIdsFromFile.deviceIds.contains(payload) and !deviceIdList.contains(payload)]"
 				doc:name="Match Device Ids from File with each Device id in the request" />
 			<expression-transformer doc:name="Add the matched device Id into a Collection"
 				expression="#[deviceIdList.add(payload)]" />
@@ -169,94 +157,4 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 	</flow>
 
 
-	<flow name="swaggerconfigurationflow" initialState="started">
-		<http:listener config-ref="HTTP_Listener_Configuration"
-			path="/swagger/*" metadata:id="db97f3e7-c045-40fe-8c49-9e7c41a71eed"
-			doc:name="HTTP" />
-		<echo-component doc:name="Echo" />
-		<choice doc:name="Choice">
-			<when expression="!(payload == null)">
-				<set-variable value="#[message.payload]" variableName="originalPayload"
-					doc:name="Variable"></set-variable>
-
-			</when>
-			<otherwise>
-				<logger
-					message="Payload recvd  #[message.inboundProperties['http.query.params'].deviceIds]"
-					level="INFO" doc:name="Logger" />
-
-			</otherwise>
-		</choice>
-		<jersey:resources doc:name="REST">
-			<component>
-				<spring-object bean="apiListingJSON" />
-			</component>
-			<component>
-				<spring-object bean="deviceResource" />
-
-			</component>
-		</jersey:resources>
-		<choice doc:name="Choice">
-			<when expression="!(payload == null)">
-				<object-to-string-transformer doc:name="Object to String"></object-to-string-transformer>
-				<choice doc:name="Payload choice">
-					<when
-						expression="#[payload == 'DeviceConfigurationFlow' and originalPayload != null]">
-						<set-payload value="#[ flowVars.originalPayload]"
-							doc:name="Set Payload"></set-payload>
-						<set-property propertyName="Content-Type" value="application/json"
-							doc:name="Property" />
-						<remove-property propertyName="Content-Length"
-							doc:name="Property" />
-						<echo-component doc:name="Echo" />
-
-
-						<http:request config-ref="HTTP_Request_Configuration_Global"
-							path="/api/booking/device/info" method="POST" source="#[payload]"
-							target="#[payload]" doc:name="Register Device">
-
-
-						</http:request>
-						<echo-component doc:name="Echo" />
-
-					</when>
-					<when
-						expression="#[payload == 'RetrieveDeviceDetailsFlow' and message.inboundProperties['http.query.params'].?deviceIds != null]">
-						<echo-component doc:name="Echo" />
-						<remove-property propertyName="Content-Length"
-							doc:name="Property" />
-						<http:request config-ref="HTTP_Request_Configuration_Global"
-							path="/api/booking/device/info" target="#[payload]" method="GET"
-							doc:name="Get Device Details">
-
-							<http:request-builder>
-                                <http:query-param paramName="deviceIds" value="#[message.inboundProperties['http.query.params'].deviceIds]"/>
-
-							</http:request-builder>
-						</http:request>
-						<echo-component doc:name="Echo" />
-
-					</when>
-					<otherwise>
-
-						<logger
-							message="Payload for swagger#[message.payloadAs(java.lang.String)]"
-							level="INFO" doc:name="Logger" />
-
-					</otherwise>
-
-				</choice>
-			</when>
-			<otherwise>
-				<logger message="No flows found" level="INFO" doc:name="Logger" />
-			</otherwise>
-		</choice>
-	</flow>
-	<flow name="swaggerUiFlow">
-		<http:listener config-ref="HTTP_Listener_Configuration"
-			path="/swagger/api-docs/*" doc:name="HTTP" />
-		<http:static-resource-handler
-			resourceBase="${app.home}/docs" defaultFile="index.html"
-			doc:name="HTTP Static Resource Handler" />
-	</flow>
 </mule>

@@ -10,7 +10,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
-    <flow name="loginflowFlow">
+    <flow name="LoginFlow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/login" allowedMethods="POST" metadata:id="a3dff7e3-b562-4671-a2ea-bb84b11d84d6" doc:name="Recieve Login Request">
             <http:response-builder statusCode="200" reasonPhrase="OK"/>
             <http:error-response-builder statusCode="400" reasonPhrase="Bad Request"/>
@@ -41,7 +41,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
             </otherwise>
         </choice>
     </flow>
-    <flow name="logoutflow">
+    <flow name="LogoutFlow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/logout" doc:name="Receive Logout Request" allowedMethods="POST">
             <http:response-builder statusCode="200" reasonPhrase="OK"/>
             <http:error-response-builder statusCode="400" reasonPhrase="Bad Request"/>

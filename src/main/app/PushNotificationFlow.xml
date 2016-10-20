@@ -18,7 +18,7 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
     <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8082" basePath="booking-engine-reservation" doc:name="HTTP Request Configuration" connectionIdleTimeout="3000000"/>
     <http:request-config name="GCMConfiguration" protocol="HTTPS" host="gcm-http.googleapis.com" port="443" doc:name="HTTP Request Configuration">
     </http:request-config>
-    <flow name="pushnotificationflowFlow">
+    <flow name="PushNotificationFlow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/notify/info" allowedMethods="POST" doc:name="Recieve Push Notification Request"/>
         <json:json-to-object-transformer returnClass="com.cognizant.orchestration.dto.PushNotificationRequest" mapper-ref="objectMapper" doc:name="Create PushNotificationRequest"/>
         <validation:is-not-empty config-ref="Validation_Configuration" value="#[payload.identifier]" message="System Identifier cannot be empty, please provide a value" exceptionClass="com.cognizant.orchestration.exception.BookingApplException" doc:name="Validate System Identifier"/>
