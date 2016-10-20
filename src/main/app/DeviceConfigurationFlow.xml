@@ -107,7 +107,7 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 			doc:name="Set Device Ids in the Flow from Request" />
 
 		<invoke name="RetrieveFileContent" object-ref="retrieveFileContent"
-			method="getFileContent" methodArguments="${filePath}deviceMapping.txt"
+			method="getFileContent" methodArguments="${filePath}/deviceMapping.txt"
 			methodArgumentTypes="java.lang.String" doc:name="RetrieveFileContent" />
 		<set-variable variableName="deviceIdsFromFile" value="#[payload]"
 			doc:name="Set DeviceIds from File as Payload" />
