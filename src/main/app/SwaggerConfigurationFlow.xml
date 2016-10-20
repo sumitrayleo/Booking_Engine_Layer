@@ -29,7 +29,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
     </spring:beans>
 
 
-	<flow name="swaggerdeviceconfigurationflow" initialState="started">
+	<flow name="SwaggerDeviceConfigurationFlow" initialState="started">
 		<http:listener config-ref="HTTP_Listener_Configuration"
 			path="/swagger/*" 
 			doc:name="HTTP" />
