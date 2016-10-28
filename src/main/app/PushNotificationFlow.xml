@@ -194,7 +194,7 @@ payload.reservations map ((reservation , indexOfReservation) -> {
         <http:request config-ref="GCMConfiguration" path="/gcm/send" method="POST" sendBodyMode="ALWAYS" doc:name="Call GCM service" source="#[payload]" target="#[payload]">
             <http:request-builder>
                 <http:header headerName="content-type" value="application/json"/>
-                <http:header headerName="authorization" value="key=${gcm.server.key}"/>
+                <http:header headerName="authorization" value="key=${fcm.server.key}"/>
 
 
 
