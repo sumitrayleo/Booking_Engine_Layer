@@ -1,19 +1,19 @@
 package com.cognizant.orchestration.dto;
 
-import java.util.List;
-
 import com.cognizant.dto.BaseResponse;
 
 public class RegisterDeviceResponse extends BaseResponse {
 
-	private List<String> deviceIds;
+	private AssetInfo deviceInfo;
 
-	public List<String> getDeviceIds() {
-		return deviceIds;
+	public AssetInfo getDeviceInfo() {
+		return deviceInfo;
 	}
 
-	public void setDeviceIds(List<String> deviceIds) {
-		this.deviceIds = deviceIds;
+	public void setDeviceInfo(AssetInfo deviceInfo) {
+		this.deviceInfo = deviceInfo;
 	}
+
+
 
 }
