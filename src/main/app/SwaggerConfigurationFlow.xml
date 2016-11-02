@@ -119,7 +119,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 
 					</when>
 					<when
-						expression="#[flowRef == 'RetrieveDeviceDetailsFlow' and message.inboundProperties['http.query.params'].?deviceIds != null]">
+						expression="#[flowRef == 'RetrieveDeviceDetailsFlow' and message.inboundProperties['http.query.params'].?assetId != null]">
 						<echo-component doc:name="Echo" />
 						<remove-property propertyName="Content-Length"
 							doc:name="Property" />
@@ -128,8 +128,9 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 							doc:name="Get Device Details">
 
 							<http:request-builder>
-                                <http:query-param paramName="deviceIds" value="#[message.inboundProperties['http.query.params'].deviceIds]"/>
-
+                                <http:query-param paramName="uuid" value="#[message.inboundProperties['http.query.params'].uuid]"/>
+                                <http:query-param paramName="region" value="#[message.inboundProperties['http.query.params'].region]"/>
+                                <http:query-param paramName="assetId" value="#[message.inboundProperties['http.query.params'].assetId]"/>
 							</http:request-builder>
 						</http:request>
 						<echo-component doc:name="Echo" />

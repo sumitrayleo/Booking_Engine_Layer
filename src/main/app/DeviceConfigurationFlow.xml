@@ -57,11 +57,15 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 			<http:error-response-builder statusCode="400"
 				reasonPhrase="Bad Request" />
 		</http:listener>
+        <echo-component doc:name="Echo"/>
 		<choice doc:name="Validates Payload and Proceed Forward">
 			<when expression="!(payload == null)">
+		
 				<json:json-to-object-transformer
 					returnClass="com.cognizant.orchestration.dto.DeviceInformation"
 					mapper-ref="objectMapper" doc:name="Create RegisterDeviceRequest" />
+
+					
 				<file:outbound-endpoint path="${filePath}"
 					outputPattern="deviceMapping.txt" responseTimeout="10000"
 					doc:name="Store device id in file" connector-ref="File"
@@ -98,47 +102,31 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 		</http:listener>
 
 		<validation:is-not-empty config-ref="Validation_Configuration"
-			value="#[message.inboundProperties['http.query.params'].deviceIds]"
+			value="#[message.inboundProperties['http.query.params'].assetId]"
 			message="Please specify the Device Id" exceptionClass="com.cognizant.orchestration.exception.BookingApplException"
 			doc:name="Check empty Device Id" />
 
-		<set-variable variableName="deviceIdsFromRequest"
-			value="#[message.inboundProperties['http.query.params'].deviceIds]"
-			doc:name="Set Device Ids in the Flow from Request" />
-
 		<invoke name="RetrieveFileContent" object-ref="retrieveFileContent"
-			method="getFileContent" methodArguments="${filePath}/deviceMapping.txt"
-			methodArgumentTypes="java.lang.String" doc:name="RetrieveFileContent" />
-		<set-variable variableName="deviceIdsFromFile" value="#[payload]"
-			doc:name="Set DeviceIds from File as Payload" />
-
-		<set-variable variableName="deviceIdList" value="#[[]]"
-			doc:name="Set Device Id List" />
-		<foreach collection="#[deviceIdsFromRequest.split(',')]"
-			counterVariableName="index" doc:name="For Each DeviceId from Request">
-
-
-			<expression-filter expression="#[deviceIdsFromFile.deviceIds.contains(payload) and !deviceIdList.contains(payload)]"
-				doc:name="Match Device Ids from File with each Device id in the request" />
-			<expression-transformer doc:name="Add the matched device Id into a Collection"
-				expression="#[deviceIdList.add(payload)]" />
-
-		</foreach>
-
-
-
-
-		<choice doc:name="Forward Device Id List for Transformation, If empty throw Exception">
-			<when expression="#[deviceIdList.size()>0]">
+			method="getFileContent" methodArguments="${filePath}/deviceMapping.txt, #[message.inboundProperties['http.query.params'].assetId],  #[message.inboundProperties['http.query.params'].uuid],  #[message.inboundProperties['http.query.params'].region]"
+			methodArgumentTypes="java.lang.String, java.lang.String, java.lang.String, java.lang.String" doc:name="RetrieveFileContent" />
+		<choice doc:name="Forward Device Info for Transformation, If empty throw Exception">
+			<when expression="#[payload.assetId != null]">
 				<dw:transform-message metadata:id="be996efb-6b4d-4b00-ac1d-1a259f6c716a"
 					doc:name="Transform Message">
-					<dw:input-payload mimeType="application/java" />
-
+					<dw:input-payload mimeType="application/java"/>
 					<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---
 {
-	deviceIds: flowVars.deviceIdList,
+	deviceInfo: {
+	assetId:payload.assetId,
+	region:payload.region,
+	uuid:payload.uuid,
+	message:payload.message,
+	longitude:payload.longitude,
+	latitude:payload.latitude,
+	locationDetails:payload.locationDetails
+	},
 	success: true,
 	message:null
 } as :object {

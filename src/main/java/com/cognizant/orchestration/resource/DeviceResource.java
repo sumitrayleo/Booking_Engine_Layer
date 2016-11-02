@@ -1,7 +1,5 @@
 package com.cognizant.orchestration.resource;
 
-import java.util.List;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,7 +28,7 @@ public class DeviceResource {
 	@ApiOperation(value = "Finds device by Ids", response = RegisterDeviceResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String retrieveDeviceById(
-			@ApiParam(value = "Device Ids to find", required = true, allowMultiple = true) @QueryParam("deviceIds") List<String> deviceIds) {
+			@ApiParam(value = "Asset Id to find", required = true) @QueryParam("assetId") String assetId,	@ApiParam(value = "Region to find", required = true) @QueryParam("region") String region,	@ApiParam(value = "Uuid to find", required = true) @QueryParam("uuid") String uuid) {
 
 		return "RetrieveDeviceDetailsFlow";
 	}
@@ -39,7 +37,7 @@ public class DeviceResource {
 	@Path("/registerDevice")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@ApiOperation(value = "Register Device", response = BaseResponse.class)
-	@ApiResponses(value = { @ApiResponse(code = 405, message = "Please provide a valid input") })
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String registerDevice(
 			@ApiParam(value = "Device Id and App Name ", required = true) DeviceInformation device) {
 
