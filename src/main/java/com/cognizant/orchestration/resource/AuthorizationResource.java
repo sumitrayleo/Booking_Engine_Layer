@@ -24,7 +24,7 @@ public class AuthorizationResource {
 	@Path("/login")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@ApiOperation(value = "Login User", response = LoginResponse.class)
-	@ApiResponses(value = { @ApiResponse(code = 405, message = "Please provide valid username and password") })
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide valid username and password") })
 	public String login(
 			@ApiParam(value = "Login Request ", required = true) LoginRequest login) {
 
@@ -35,7 +35,7 @@ public class AuthorizationResource {
 	@Path("/logout")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@ApiOperation(value = "Logout User", response = BaseResponse.class)
-	@ApiResponses(value = { @ApiResponse(code = 405, message = "Please provide a valid input") })
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String logout() {
 
 		return "LogoutFlow";

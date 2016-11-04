@@ -25,10 +25,10 @@ public class DeviceResource {
 
 	@GET
 	@Path("/retrieveDeviceById")
-	@ApiOperation(value = "Finds device by Ids", response = RegisterDeviceResponse.class)
+	@ApiOperation(value = "Finds device registration details by unique identifiers", response = RegisterDeviceResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String retrieveDeviceById(
-			@ApiParam(value = "Asset Id to find", required = true) @QueryParam("assetId") String assetId,	@ApiParam(value = "Region to find", required = true) @QueryParam("region") String region,	@ApiParam(value = "Uuid to find", required = true) @QueryParam("uuid") String uuid) {
+			@ApiParam(value = "Uuid to find", required = true) @QueryParam("uuid") String uuid,@ApiParam(value = "Region to find", required = true) @QueryParam("region") String region,@ApiParam(value = "Asset Id to find", required = true) @QueryParam("assetId") String assetId) {
 
 		return "RetrieveDeviceDetailsFlow";
 	}
@@ -39,7 +39,7 @@ public class DeviceResource {
 	@ApiOperation(value = "Register Device", response = BaseResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String registerDevice(
-			@ApiParam(value = "Device Id and App Name ", required = true) DeviceInformation device) {
+			@ApiParam(value = "Device Details for Registration", required = true) DeviceInformation device) {
 
 		return "DeviceConfigurationFlow";
 	}

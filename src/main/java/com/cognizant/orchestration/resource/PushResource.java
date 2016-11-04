@@ -23,7 +23,7 @@ public class PushResource {
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@ApiOperation(value = "Send Push Notification", response = BaseResponse.class)
-	@ApiResponses(value = { @ApiResponse(code = 405, message = "Please provide a valid input") })
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String sendPushNotification(
 			@ApiParam(value = "Push Notification Request", required = true) PushNotificationRequest pushNotificationRequest) {
 

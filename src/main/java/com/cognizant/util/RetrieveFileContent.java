@@ -1,66 +1,47 @@
 package com.cognizant.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 import com.cognizant.orchestration.dto.AssetInfo;
+import com.cognizant.orchestration.dto.DeviceInformation;
 import com.cognizant.orchestration.exception.BookingApplException;
 
 @Component
 public class RetrieveFileContent {
 
-	public AssetInfo getFileContent(String fileName, String deviceIdRequest, String uuidRequest, String regionRequest) {
-		AssetInfo asset = new AssetInfo();
+	public AssetInfo getFileContent(final String filePath, final String deviceIdRequest, final String uuidRequest, final String regionRequest) {
+		AssetInfo asset = null;
 
-		final Properties props = new Properties();
 		try {
-			props.load(new FileInputStream(fileName));
-		} catch (IOException e) {
-			throw new BookingApplException("Error ocurred while retrieving stream");
-		}
-		
-		final List<String> uuids = Arrays.asList(props.getProperty("RegisteredUuids").split("\\,"));
-		if(uuids.contains(uuidRequest))
-			{
-				final String uuidKey = "uuid:"+uuidRequest+"_region:"+regionRequest+"_assetId:"+deviceIdRequest;	
-				String deviceInfoValue = props.getProperty(uuidKey);
-				if(deviceInfoValue!=null){
-					
-					asset.setAssetId(deviceIdRequest);
-					asset.setUuid(uuidRequest);
-					asset.setRegion(regionRequest);
-					final String[] deviceInfoArray = deviceInfoValue.split("_");
-					
-					asset.setMessage(populateValue(asset, deviceInfoArray, "message:"));
-					asset.setLongitude(populateValue(asset, deviceInfoArray, "longitude:"));
-					asset.setLatitude(populateValue(asset, deviceInfoArray, "latitude:"));
-					asset.setLocationDetails(populateValue(asset, deviceInfoArray, "locationDetails:"));
+			final File jsonFile = new File(filePath);
+			final ObjectMapper mapper = new ObjectMapper();
+			if (jsonFile.exists() && jsonFile.length() != 0) {
+				final FileInputStream fileInputStream = new FileInputStream(jsonFile);
+				DeviceInformation existingValue = mapper.readValue(fileInputStream, DeviceInformation.class);
+				asset = (AssetInfo) CollectionUtils.find(existingValue.getDevices(), new Predicate(){
 
+					@Override
+					public boolean evaluate(Object object) {
+						final AssetInfo assetInfo = (AssetInfo)object;
+						final String assetId = assetInfo.getAssetId();
+						final String uuidId = assetInfo.getUuid();
+						final String regionId = assetInfo.getRegion();
 
-				}
-				
+						return deviceIdRequest.equalsIgnoreCase(assetId)&& uuidRequest.equalsIgnoreCase(uuidId) && regionRequest.equalsIgnoreCase(regionId);
+					}});
+				fileInputStream.close();
 			}
-		
 		return asset;
+	} catch (IOException e) {
+		throw new BookingApplException("Error ocurred while retrieving stream");
 	}
-
-	private String populateValue(AssetInfo asset, String[] deviceInfoArray, final String key) {
-		for(String  deviceInfo: deviceInfoArray){
-			String[] descriptionArray = deviceInfo.split(key);
-			if(!(ArrayUtils.isEmpty(descriptionArray) || descriptionArray.length==1))
-			{
-				return  descriptionArray[1];	
-
-			} 
-			
-		}
-		return StringUtils.EMPTY;
 	}
+	
 }

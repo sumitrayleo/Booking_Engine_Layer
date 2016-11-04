@@ -1,7 +1,8 @@
 package com.cognizant.orchestration.dto;
 
 public class AssetInfo {
-    private String uuid;
+   
+	private String uuid;
     private String region;
     private String assetId;
     private String message;
@@ -52,5 +53,32 @@ public class AssetInfo {
 	public void setLongitude(String longitude) {
 		this.longitude = longitude;
 	}
+	@Override
+	public boolean equals(Object obj) {
+	    if (obj == null) {
+	        return false;
+	    }
+	    if (!AssetInfo.class.isAssignableFrom(obj.getClass())) {
+	        return false;
+	    }
+	    final AssetInfo other = (AssetInfo) obj;
+	    if ((this.uuid == null) ? (other.uuid != null) : !this.uuid.equals(other.uuid)) {
+	        return false;
+	    }
+	    if ((this.region == null) ? (other.region != null) : !this.region.equals(other.region)) {
+	        return false;
+	    }
+	    if ((this.assetId == null) ? (other.assetId != null) : !this.assetId.equals(other.assetId)) {
+	        return false;
+	    }
+	    return true;
+	}
+
+	@Override
+	public int hashCode() {	  
+	    return Integer.MIN_VALUE;
+	}
 	
 }
+
+

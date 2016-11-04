@@ -26,24 +26,25 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 		returnClass="java.lang.String" name="File_to_String" doc:name="File to String" />
 	<file:connector name="File" writeToDirectory="${filePath}"
 		readFromDirectory="${filePath}" workDirectory="${filePath}"
-		autoDelete="false" outputAppend="true" streaming="true"
+		autoDelete="false" outputAppend="false" streaming="true"
 		validateConnections="true" doc:name="File" serialiseObjects="true"
-		outputPattern="deviceMapping.txt" />
-	<object-to-byte-array-transformer
-		name="Object_to_Byte_Array" doc:name="Object to Byte Array" encoding="US-ASCII"
+		outputPattern="deviceMapping.json" />
+	<object-to-byte-array-transformer 
+		name="Object_to_Byte_Array" doc:name="Object to Byte Array" encoding="UTF-8"
 		mimeType="text/plain" />
 	<byte-array-to-serializable-transformer
 		name="Byte_Array_to_Serializable" doc:name="Byte Array to Serializable"
 		encoding="US-ASCII" mimeType="text/plain" />
 	<spring:beans>
-		<spring:bean id="DeviceInformationTransformer" name="DeviceInformationTransformer"
-			class="com.cognizant.transformer.RegisterDeviceToFileTransformer"
-			scope="singleton" />
+		
 		<spring:bean id="retrieveFileContent" name="RetrieveFileContent"
 			class="com.cognizant.util.RetrieveFileContent" scope="singleton" />
 
-		
+		<spring:bean id="DeviceInformationTransformer" name="DeviceInformationTransformer"
+			class="com.cognizant.transformer.RegisterDeviceToFileTransformer"
+			scope="singleton" />
         <spring:bean id="objectMapper" name="ObjectMapper" class="org.codehaus.jackson.map.ObjectMapper" scope="singleton"/>
+        <spring:bean id="readDeviceInfo" name="readDeviceInfo" class="com.cognizant.util.ReadDeviceInfoUtil" scope="singleton"/>
 	</spring:beans>
 	<http:request-config basePath='service'
 		doc:name='HTTP Request Configuration' host='0.0.0.0'
@@ -65,11 +66,14 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 					returnClass="com.cognizant.orchestration.dto.DeviceInformation"
 					mapper-ref="objectMapper" doc:name="Create RegisterDeviceRequest" />
 
-					
-				<file:outbound-endpoint path="${filePath}"
-					outputPattern="deviceMapping.txt" responseTimeout="10000"
+					<invoke name="ReadFileContent" object-ref="readDeviceInfo"
+			method="readDeviceInformation" methodArguments="${filePath}/deviceMapping.json,   #[payload]"
+			methodArgumentTypes="java.lang.String, com.cognizant.orchestration.dto.DeviceInformation" doc:name="ReadFileContent" />
+		
+				<file:outbound-endpoint path="${filePath}"  
+					outputPattern="deviceMapping.json" responseTimeout="10000"
 					doc:name="Store device id in file" connector-ref="File"
-					disableTransportTransformer="true" encoding="US-ASCII" mimeType="text/plain" />
+					disableTransportTransformer="true" encoding="UTF-8" mimeType="application/json" />
 				<dw:transform-message metadata:id="5430432f-c833-47ca-a88c-d29a4b3301f6"
 					doc:name="Transform Message">
 					<dw:set-payload><![CDATA[%dw 1.0
@@ -107,10 +111,10 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 			doc:name="Check empty Device Id" />
 
 		<invoke name="RetrieveFileContent" object-ref="retrieveFileContent"
-			method="getFileContent" methodArguments="${filePath}/deviceMapping.txt, #[message.inboundProperties['http.query.params'].assetId],  #[message.inboundProperties['http.query.params'].uuid],  #[message.inboundProperties['http.query.params'].region]"
+			method="getFileContent" methodArguments="${filePath}/deviceMapping.json, #[message.inboundProperties['http.query.params'].assetId],  #[message.inboundProperties['http.query.params'].uuid],  #[message.inboundProperties['http.query.params'].region]"
 			methodArgumentTypes="java.lang.String, java.lang.String, java.lang.String, java.lang.String" doc:name="RetrieveFileContent" />
 		<choice doc:name="Forward Device Info for Transformation, If empty throw Exception">
-			<when expression="#[payload.assetId != null]">
+			<when expression="#[payload != null]">
 				<dw:transform-message metadata:id="be996efb-6b4d-4b00-ac1d-1a259f6c716a"
 					doc:name="Transform Message">
 					<dw:input-payload mimeType="application/java"/>
