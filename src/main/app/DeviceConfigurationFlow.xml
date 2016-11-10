@@ -26,7 +26,7 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 		returnClass="java.lang.String" name="File_to_String" doc:name="File to String" />
 	<file:connector name="File" writeToDirectory="${filePath}"
 		readFromDirectory="${filePath}" workDirectory="${filePath}"
-		autoDelete="false" outputAppend="false" streaming="true"
+		autoDelete="false"  streaming="true"
 		validateConnections="true" doc:name="File" serialiseObjects="true"
 		outputPattern="deviceMapping.json" />
 	<object-to-byte-array-transformer 
@@ -63,16 +63,16 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 			<when expression="!(payload == null)">
 		
 				<json:json-to-object-transformer
-					returnClass="com.cognizant.orchestration.dto.DeviceInformation"
-					mapper-ref="objectMapper" doc:name="Create RegisterDeviceRequest" />
+					returnClass="com.cognizant.orchestration.dto.DeviceInformationRQ"
+					mapper-ref="objectMapper" doc:name="Create Device Information Request" />
 
-					<invoke name="ReadFileContent" object-ref="readDeviceInfo"
+					<invoke name="Read File Content" object-ref="readDeviceInfo"
 			method="readDeviceInformation" methodArguments="${filePath}/deviceMapping.json,   #[payload]"
-			methodArgumentTypes="java.lang.String, com.cognizant.orchestration.dto.DeviceInformation" doc:name="ReadFileContent" />
+			methodArgumentTypes="java.lang.String, com.cognizant.orchestration.dto.DeviceInformationRQ" doc:name="Read Device Information From File" />
 		
 				<file:outbound-endpoint path="${filePath}"  
 					outputPattern="deviceMapping.json" responseTimeout="10000"
-					doc:name="Store device id in file" connector-ref="File"
+					doc:name="Store device information in file" connector-ref="File"
 					disableTransportTransformer="true" encoding="UTF-8" mimeType="application/json" />
 				<dw:transform-message metadata:id="5430432f-c833-47ca-a88c-d29a4b3301f6"
 					doc:name="Transform Message">
@@ -80,10 +80,12 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 %output application/json
 ---
 {
-	message: "Device registered successfully",
-	success: true
+	responseMessage: "Device registered successfully",
+	responseType: {
+		statusCode: 0
+	}
 } as :object {
-	class : "com.cognizant.dto.BaseResponse"
+	class : "com.cognizant.orchestration.dto.BaseResponse"
 }]]></dw:set-payload>
 				</dw:transform-message>
 
@@ -110,9 +112,9 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 			message="Please specify the Device Id" exceptionClass="com.cognizant.orchestration.exception.BookingApplException"
 			doc:name="Check empty Device Id" />
 
-		<invoke name="RetrieveFileContent" object-ref="retrieveFileContent"
+		<invoke name="Retrieve Device Info from File" object-ref="retrieveFileContent"
 			method="getFileContent" methodArguments="${filePath}/deviceMapping.json, #[message.inboundProperties['http.query.params'].assetId],  #[message.inboundProperties['http.query.params'].uuid],  #[message.inboundProperties['http.query.params'].region]"
-			methodArgumentTypes="java.lang.String, java.lang.String, java.lang.String, java.lang.String" doc:name="RetrieveFileContent" />
+			methodArgumentTypes="java.lang.String, java.lang.String, java.lang.String, java.lang.String" doc:name="Retrieve Device Information from File" />
 		<choice doc:name="Forward Device Info for Transformation, If empty throw Exception">
 			<when expression="#[payload != null]">
 				<dw:transform-message metadata:id="be996efb-6b4d-4b00-ac1d-1a259f6c716a"

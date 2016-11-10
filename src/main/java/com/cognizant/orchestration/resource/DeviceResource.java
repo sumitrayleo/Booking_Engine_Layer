@@ -8,8 +8,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.cognizant.dto.BaseResponse;
-import com.cognizant.orchestration.dto.DeviceInformation;
+import com.cognizant.orchestration.dto.BaseResponse;
+import com.cognizant.orchestration.dto.DeviceInformationRQ;
 import com.cognizant.orchestration.dto.RegisterDeviceResponse;
 
 import io.swagger.annotations.Api;
@@ -39,7 +39,7 @@ public class DeviceResource {
 	@ApiOperation(value = "Register Device", response = BaseResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String registerDevice(
-			@ApiParam(value = "Device Details for Registration", required = true) DeviceInformation device) {
+			@ApiParam(value = "Device Details for Registration", required = true) DeviceInformationRQ device) {
 
 		return "DeviceConfigurationFlow";
 	}

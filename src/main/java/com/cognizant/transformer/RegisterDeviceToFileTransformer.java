@@ -8,12 +8,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.mule.api.annotations.ContainsTransformerMethods;
 import org.mule.api.annotations.Transformer;
 
-import com.cognizant.orchestration.dto.DeviceInformation;
+import com.cognizant.orchestration.dto.DeviceInformationRQ;
 import com.cognizant.orchestration.exception.BookingApplException;
 @ContainsTransformerMethods
 public class RegisterDeviceToFileTransformer {
 	@Transformer
-	public InputStream fromDeviceInformationToFile(final DeviceInformation deviceRequest) throws BookingApplException {
+	public InputStream fromDeviceInformationToFile(final DeviceInformationRQ deviceRequest) throws BookingApplException {
 		try {
 
 			final ObjectMapper mapper = new ObjectMapper();

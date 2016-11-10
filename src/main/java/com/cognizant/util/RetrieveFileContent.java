@@ -10,7 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 import com.cognizant.orchestration.dto.AssetInfo;
-import com.cognizant.orchestration.dto.DeviceInformation;
+import com.cognizant.orchestration.dto.DeviceInformationRQ;
 import com.cognizant.orchestration.exception.BookingApplException;
 
 @Component
@@ -24,7 +24,7 @@ public class RetrieveFileContent {
 			final ObjectMapper mapper = new ObjectMapper();
 			if (jsonFile.exists() && jsonFile.length() != 0) {
 				final FileInputStream fileInputStream = new FileInputStream(jsonFile);
-				DeviceInformation existingValue = mapper.readValue(fileInputStream, DeviceInformation.class);
+				DeviceInformationRQ existingValue = mapper.readValue(fileInputStream, DeviceInformationRQ.class);
 				asset = (AssetInfo) CollectionUtils.find(existingValue.getDevices(), new Predicate(){
 
 					@Override

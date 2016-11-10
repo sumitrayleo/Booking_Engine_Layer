@@ -3,7 +3,7 @@
     "outputMessageMetadata": {
         "messagePayload": {
             "connectorName": "#_custom_mule_metadata_type_#",
-            "typeId": "BaseResponse"
+            "typeId": "DeviceInformationRS"
         }
     },
     "id": "5430432f-c833-47ca-a88c-d29a4b3301f6",

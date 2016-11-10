@@ -50,7 +50,7 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
 we will send you the desired information shortly!!!",
 	success: true
 } as :object {
-	class : "com.cognizant.dto.BaseResponse"
+	class : "com.cognizant.orchestration.dto.BaseResponse"
 }]]></dw:set-payload>
         </dw:transform-message>
     </flow>

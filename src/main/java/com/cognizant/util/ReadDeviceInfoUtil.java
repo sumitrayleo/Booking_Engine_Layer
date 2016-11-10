@@ -9,18 +9,20 @@ import org.apache.commons.collections.CollectionUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.cognizant.orchestration.dto.AssetInfo;
-import com.cognizant.orchestration.dto.DeviceInformation;
+import com.cognizant.orchestration.dto.DeviceInformationRQ;
 import com.cognizant.orchestration.exception.BookingApplException;
 
 public class ReadDeviceInfoUtil {
 	@SuppressWarnings("unchecked")
-	public DeviceInformation readDeviceInformation(final String filePath, final DeviceInformation deviceRequest) throws BookingApplException {
+	public DeviceInformationRQ readDeviceInformation(final String filePath, final DeviceInformationRQ deviceRequest) {
+		File jsonFile = null;
+		FileInputStream fileInputStream = null; 
 		try {
-			final File jsonFile = new File(filePath);
+			jsonFile = new File(filePath);
+			fileInputStream = new FileInputStream(jsonFile);
 			final ObjectMapper mapper = new ObjectMapper();
 			if (jsonFile.exists() && jsonFile.length() != 0) {
-				final FileInputStream fileInputStream = new FileInputStream(jsonFile);
-				DeviceInformation existingValue = mapper.readValue(fileInputStream, DeviceInformation.class);
+				DeviceInformationRQ existingValue = mapper.readValue(fileInputStream, DeviceInformationRQ.class);
 				final List<AssetInfo> newDevices = deviceRequest.getDevices();
 				List<AssetInfo> existingDevices = existingValue.getDevices();
 				List<AssetInfo> existingCommonDevices = (List<AssetInfo>) CollectionUtils.intersection(newDevices,
@@ -28,11 +30,18 @@ public class ReadDeviceInfoUtil {
 				existingDevices.removeAll(existingCommonDevices);
 				existingDevices.addAll(newDevices);
 				deviceRequest.setDevices(existingDevices);
-				fileInputStream.close();
 			}
 		
 		} catch (IOException e) {
 			throw new BookingApplException("Error ocurred while writing to stream");
+		}
+		finally{
+			try {
+				fileInputStream.close();
+			} catch (IOException e) {
+				throw new BookingApplException("Error Occurred while closing the file input stream");
+			}
+			
 		}
 		return deviceRequest;
 	}

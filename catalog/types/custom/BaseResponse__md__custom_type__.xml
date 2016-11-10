@@ -11,7 +11,7 @@
     </metaDataKeyPropertiesManager>
   </typeName>
   <metadataModel class="org.mule.common.metadata.DefaultPojoMetaDataModel">
-    <implementationClass>com.cognizant.dto.BaseResponse</implementationClass>
+    <implementationClass>com.cognizant.orchestration.dto.BaseResponse</implementationClass>
     <dataType>POJO</dataType>
     <metaDataModelPropertiesManager>
       <properties/>
@@ -71,7 +71,7 @@
         </metaDataFieldPropertyManager>
       </org.mule.common.metadata.DefaultMetaDataField>
     </fields>
-    <clazzName>com.cognizant.dto.BaseResponse</clazzName>
+    <clazzName>com.cognizant.orchestration.dto.BaseResponse</clazzName>
     <isInterface>false</isInterface>
     <name>BaseResponse</name>
     <parentNames>

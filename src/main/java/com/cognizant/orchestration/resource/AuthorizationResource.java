@@ -6,9 +6,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.cognizant.dto.BaseResponse;
 import com.cognizant.dto.LoginRequest;
 import com.cognizant.dto.LoginResponse;
+import com.cognizant.orchestration.dto.BaseResponse;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

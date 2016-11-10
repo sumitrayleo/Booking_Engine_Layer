@@ -1,8 +1,6 @@
 package com.cognizant.orchestration.dto;
 
-import com.cognizant.dto.BaseResponse;
-
-public class RegisterDeviceResponse extends BaseResponse {
+public class RegisterDeviceResponse {
 
 	private AssetInfo deviceInfo;
 

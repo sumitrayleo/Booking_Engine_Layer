@@ -6,7 +6,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.cognizant.dto.BaseResponse;
+import com.cognizant.orchestration.dto.BaseResponse;
 import com.cognizant.orchestration.dto.PushNotificationRequest;
 
 import io.swagger.annotations.Api;
