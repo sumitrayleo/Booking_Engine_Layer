@@ -18,6 +18,9 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
     <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8082" basePath="booking-engine-reservation" doc:name="HTTP Request Configuration" connectionIdleTimeout="3000000"/>
     <http:request-config name="GCMConfiguration" protocol="HTTPS" host="gcm-http.googleapis.com" port="443" doc:name="HTTP Request Configuration">
     </http:request-config>
+    <spring:beans>
+        <spring:bean id="readPushNotificationResponse" name="readPushNotificationResponse" class="com.cognizant.util.CreateSampleReservationResponse"/>
+    </spring:beans>
     <flow name="PushNotificationFlow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/notify/info" allowedMethods="POST" doc:name="Recieve Push Notification Request"/>
         <json:json-to-object-transformer returnClass="com.cognizant.orchestration.dto.PushNotificationRequest" mapper-ref="objectMapper" doc:name="Create PushNotificationRequest"/>
@@ -59,8 +62,9 @@ we will send you the desired information shortly!!!",
         <expression-component doc:name="Set Member Id and App Registration Token in Flow Vars"><![CDATA[flowVars.memberId = payload.memberId;
 flowVars.token = payload.token]]></expression-component>
 
-
-        <scatter-gather doc:name="Scatter-Gather">
+   <choice doc:name="Determine System Type">
+            <when expression="#['${gcm.flow}'== true]">
+       <scatter-gather doc:name="Scatter-Gather" >
             <custom-aggregation-strategy class="com.cognizant.orchestration.strategy.aggregation.CustomAggregationStrategy"/>
             <threading-profile maxThreadsActive="2" maxThreadsIdle="2" poolExhaustedAction="DISCARD_OLDEST" maxBufferSize="2"/>
             <processor-chain >
@@ -156,7 +160,16 @@ payload.reservations map ((reservation , indexOfReservation) -> {
             </processor-chain>
 
         </scatter-gather>
+        </when>
+        <otherwise>
+        	<invoke name="RetrieveSampleFileContent" object-ref="readPushNotificationResponse"
+			method="getSampleFileContent" doc:name="RetrieveFileContent" />
+        
+        </otherwise>
+       
+	 </choice>
         <expression-component doc:name="Setting MemberId from FlowVars to Payload"><![CDATA[payload.memberId = flowVars.memberId;]]></expression-component>
+        
         <dw:transform-message doc:name="Transform Message" metadata:id="d0802031-9b84-4bbd-bc93-6ab231e17df9">
             <dw:input-payload mimeType="application/java"/>
             <dw:input-variable mimeType="application/java" variableName="token"/>
