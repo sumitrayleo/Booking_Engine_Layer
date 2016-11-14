@@ -19,7 +19,7 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
     <http:request-config name="GCMConfiguration" protocol="HTTPS" host="gcm-http.googleapis.com" port="443" doc:name="HTTP Request Configuration">
     </http:request-config>
     <spring:beans>
-        <spring:bean id="readPushNotificationResponse" name="readPushNotificationResponse" class="com.cognizant.util.CreateSampleReservationResponse"/>
+        <spring:bean id="readPushNotificationResponse" name="readPushNotificationResponse" class="com.cognizant.util.PopulateStaticPushNotificationRS"/>
     </spring:beans>
     <flow name="PushNotificationFlow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/notify/info" allowedMethods="POST" doc:name="Recieve Push Notification Request"/>

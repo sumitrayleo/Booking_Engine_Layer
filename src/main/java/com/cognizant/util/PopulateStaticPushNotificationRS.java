@@ -9,7 +9,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.cognizant.orchestration.dto.PushNotificationResponse;
 import com.cognizant.orchestration.exception.BookingApplException;
 
-public class CreateSampleReservationResponse {
+public class PopulateStaticPushNotificationRS {
 
 	public PushNotificationResponse getSampleFileContent() {
 		final File jsonFile = new File(
