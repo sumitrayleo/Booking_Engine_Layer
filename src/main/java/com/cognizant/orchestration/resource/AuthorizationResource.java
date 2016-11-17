@@ -6,9 +6,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.cognizant.dto.LoginRequest;
-import com.cognizant.dto.LoginResponse;
-import com.cognizant.orchestration.dto.BaseResponse;
+import com.cognizant.orchestration.dto.LoginRQ;
+import com.cognizant.orchestration.dto.LoginRS;
+import com.cognizant.orchestration.dto.LogoutRS;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,10 +23,10 @@ public class AuthorizationResource {
 	@POST
 	@Path("/login")
 	@Consumes({ MediaType.APPLICATION_JSON })
-	@ApiOperation(value = "Login User", response = LoginResponse.class)
+	@ApiOperation(value = "Login User", response = LoginRS.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide valid username and password") })
 	public String login(
-			@ApiParam(value = "Login Request ", required = true) LoginRequest login) {
+			@ApiParam(value = "Login Request ", required = true) LoginRQ login) {
 
 		return "LoginFlow";
 	}
@@ -34,7 +34,7 @@ public class AuthorizationResource {
 	@POST
 	@Path("/logout")
 	@Consumes({ MediaType.APPLICATION_JSON })
-	@ApiOperation(value = "Logout User", response = BaseResponse.class)
+	@ApiOperation(value = "Logout User", response = LogoutRS.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String logout() {
 

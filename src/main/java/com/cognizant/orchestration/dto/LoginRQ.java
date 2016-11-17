@@ -1,6 +1,6 @@
-package com.cognizant.dto;
+package com.cognizant.orchestration.dto;
 
-public class LoginRequest {
+public class LoginRQ {
 
 	private String userName;
 	private String password;
@@ -18,7 +18,7 @@ public class LoginRequest {
 	}
 	@Override
 	public String toString() {
-		return "LoginRequest [userName=" + userName + ", password=" + password + "]";
+		return "LoginRQ [userName=" + userName + ", password=" + password + "]";
 	}
 	
 	

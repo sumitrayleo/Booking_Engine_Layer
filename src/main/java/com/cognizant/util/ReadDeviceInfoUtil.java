@@ -14,7 +14,7 @@ import com.cognizant.orchestration.exception.BookingApplException;
 
 public class ReadDeviceInfoUtil {
 	@SuppressWarnings("unchecked")
-	public DeviceInformationRQ readDeviceInformation(final String filePath, final DeviceInformationRQ deviceRequest) {
+	public DeviceInformationRQ readDeviceInformation(final String filePath, final DeviceInformationRQ deviceInformationReq) {
 		File jsonFile = null;
 		FileInputStream fileInputStream = null; 
 		try {
@@ -23,13 +23,13 @@ public class ReadDeviceInfoUtil {
 			final ObjectMapper mapper = new ObjectMapper();
 			if (jsonFile.exists() && jsonFile.length() != 0) {
 				DeviceInformationRQ existingValue = mapper.readValue(fileInputStream, DeviceInformationRQ.class);
-				final List<AssetInfo> newDevices = deviceRequest.getDevices();
+				final List<AssetInfo> newDevices = deviceInformationReq.getDevices();
 				List<AssetInfo> existingDevices = existingValue.getDevices();
 				List<AssetInfo> existingCommonDevices = (List<AssetInfo>) CollectionUtils.intersection(newDevices,
 						existingDevices);
 				existingDevices.removeAll(existingCommonDevices);
 				existingDevices.addAll(newDevices);
-				deviceRequest.setDevices(existingDevices);
+				deviceInformationReq.setDevices(existingDevices);
 			}
 		
 		} catch (IOException e) {
@@ -43,6 +43,6 @@ public class ReadDeviceInfoUtil {
 			}
 			
 		}
-		return deviceRequest;
+		return deviceInformationReq;
 	}
 }

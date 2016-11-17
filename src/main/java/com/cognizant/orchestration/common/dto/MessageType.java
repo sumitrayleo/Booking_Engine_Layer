@@ -1,4 +1,4 @@
-package com.cognizant.orchestration.dto;
+package com.cognizant.orchestration.common.dto;
 
 public class MessageType {
 

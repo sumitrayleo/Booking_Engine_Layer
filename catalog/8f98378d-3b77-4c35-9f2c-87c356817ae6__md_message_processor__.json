@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "LogoutResponse"
+        }
+    },
+    "id": "8f98378d-3b77-4c35-9f2c-87c356817ae6",
+    "version": "5.2.0.0"
+}

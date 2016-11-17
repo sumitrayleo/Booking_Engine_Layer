@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 
 public class DeviceInformationRQ implements Serializable {
-	private static final long serialVersionUID = 1L;
+	
+	private static final long serialVersionUID = -6753248420675321591L;
 	private List<AssetInfo> devices;
 	private String appName;
 
-	
 	public List<AssetInfo> getDevices() {
 		return devices;
 	}

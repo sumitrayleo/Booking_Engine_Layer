@@ -15,11 +15,11 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
             <http:response-builder statusCode="200" reasonPhrase="OK"/>
             <http:error-response-builder statusCode="400" reasonPhrase="Bad Request"/>
         </http:listener>
-        <json:json-to-object-transformer returnClass="com.cognizant.dto.LoginRequest" doc:name="Create Login Request" mapper-ref="objectMapper"/>
+        <json:json-to-object-transformer returnClass="com.cognizant.orchestration.dto.LoginRQ" doc:name="Create LoginRQ" mapper-ref="objectMapper"/>
         <choice doc:name="Check Empty Login Request">
             <when expression="#[payload.userName!=null and payload.password!=null]">
                 <set-variable variableName="authToken" value="#[java.util.UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;&quot;)]" doc:name="Generate Authentication Token"/>
-                <dw:transform-message metadata:id="48bd564f-fdf3-4b70-a736-04c556ed8861" doc:name="Transform Message">
+                <dw:transform-message metadata:id="48bd564f-fdf3-4b70-a736-04c556ed8861" doc:name="Return LoginRS">
                     <dw:input-payload mimeType="application/java"/>
                     <dw:input-variable mimeType="application/java" variableName="authToken"/>
                     <dw:input-outbound-property propertyName="#[authToken]"/>
@@ -27,9 +27,12 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 %output application/json
 ---
 {
-	authorizationToken: flowVars.authToken
+	authorizationToken: flowVars.authToken,
+	responseType: {
+		statusCode: 0
+	}
 } as :object {
-	class : "com.cognizant.dto.LoginResponse"
+	class : "com.cognizant.orchestration.dto.LoginRS"
 }]]></dw:set-payload>
                 </dw:transform-message>
             </when>
@@ -46,14 +49,17 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
             <http:response-builder statusCode="200" reasonPhrase="OK"/>
             <http:error-response-builder statusCode="400" reasonPhrase="Bad Request"/>
         </http:listener>
-        <dw:transform-message metadata:id="8f98378d-3b77-4c35-9f2c-87c356817ae6" doc:name="Transform Message">
+        <dw:transform-message metadata:id="8f98378d-3b77-4c35-9f2c-87c356817ae6" doc:name="Return LogoutRS">
             <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
+%output application/java
 ---
 {
-	status: true
+	responseMessage: "You have been successfully logged out",
+	responseType: {
+		statusCode: 0
+	}
 } as :object {
-	class : "com.cognizant.dto.LogOutResponse"
+	class : "com.cognizant.orchestration.dto.LogoutRS"
 }]]></dw:set-payload>
         </dw:transform-message>
 

@@ -53,12 +53,12 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 
 	<flow name="DeviceConfigurationFlow">
 		<http:listener config-ref="HTTP_Listener_Configuration"
-			path="/api/booking/device/info" allowedMethods="POST" doc:name="Registed Device Id">
+			path="/api/booking/device/info" allowedMethods="POST" doc:name="Register Device Id">
 			<http:response-builder statusCode="200" />
 			<http:error-response-builder statusCode="400"
 				reasonPhrase="Bad Request" />
 		</http:listener>
-        <echo-component doc:name="Echo"/>
+
 		<choice doc:name="Validates Payload and Proceed Forward">
 			<when expression="!(payload == null)">
 		
@@ -80,13 +80,14 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 %output application/json
 ---
 {
-	responseMessage: "Device registered successfully",
+	responseMessage: "Device Registered successfully",
 	responseType: {
 		statusCode: 0
 	}
 } as :object {
-	class : "com.cognizant.orchestration.dto.BaseResponse"
-}]]></dw:set-payload>
+	class : "com.cognizant.orchestration.dto.DeviceInformationRS"
+}
+]]></dw:set-payload>
 				</dw:transform-message>
 
 			</when>
