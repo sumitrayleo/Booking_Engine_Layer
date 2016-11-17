@@ -38,7 +38,7 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 	<spring:beans>
 		
 		<spring:bean id="retrieveFileContent" name="RetrieveFileContent"
-			class="com.cognizant.util.RetrieveFileContent" scope="singleton" />
+			class="com.cognizant.util.RetrieveDeviceInformation" scope="singleton" />
 
 		<spring:bean id="DeviceInformationTransformer" name="DeviceInformationTransformer"
 			class="com.cognizant.transformer.RegisterDeviceToFileTransformer"
@@ -74,8 +74,9 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 					outputPattern="deviceMapping.json" responseTimeout="10000"
 					doc:name="Store device information in file" connector-ref="File"
 					disableTransportTransformer="true" encoding="UTF-8" mimeType="application/json" />
+					
 				<dw:transform-message metadata:id="5430432f-c833-47ca-a88c-d29a4b3301f6"
-					doc:name="Transform Message">
+					doc:name="Return Device Registration Response">
 					<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---
@@ -119,25 +120,27 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 		<choice doc:name="Forward Device Info for Transformation, If empty throw Exception">
 			<when expression="#[payload != null]">
 				<dw:transform-message metadata:id="be996efb-6b4d-4b00-ac1d-1a259f6c716a"
-					doc:name="Transform Message">
+					doc:name="Return Device Information">
 					<dw:input-payload mimeType="application/java"/>
 					<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---
 {
 	deviceInfo: {
-	assetId:payload.assetId,
-	region:payload.region,
-	uuid:payload.uuid,
-	message:payload.message,
-	longitude:payload.longitude,
-	latitude:payload.latitude,
-	locationDetails:payload.locationDetails
+		assetId: payload.assetId,
+		region: payload.region,
+		uuid: payload.uuid,
+		message: payload.message,
+		longitude: payload.longitude,
+		latitude: payload.latitude,
+		locationDetails: payload.locationDetails
 	},
-	success: true,
-	message:null
+	responseType: {
+		statusCode: 0
+	},
+	success: true
 } as :object {
-	class : "com.cognizant.orchestration.dto.RegisterDeviceResponse"
+	class : "com.cognizant.orchestration.dto.DeviceInformationRS"
 }]]></dw:set-payload>
 				</dw:transform-message>
 			</when>

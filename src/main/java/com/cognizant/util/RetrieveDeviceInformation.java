@@ -14,7 +14,7 @@ import com.cognizant.orchestration.dto.DeviceInformationRQ;
 import com.cognizant.orchestration.exception.BookingApplException;
 
 @Component
-public class RetrieveFileContent {
+public class RetrieveDeviceInformation {
 
 	public AssetInfo getFileContent(final String filePath, final String deviceIdRequest, final String uuidRequest, final String regionRequest) {
 		AssetInfo asset = null;

@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
     </http:request-config>
     <flow name="PushNotificationFlow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/notify/info" allowedMethods="POST" doc:name="Recieve Push Notification Request"/>
-        <json:json-to-object-transformer returnClass="com.cognizant.orchestration.dto.PushNotificationRequest" mapper-ref="objectMapper" doc:name="Create PushNotificationRequest"/>
+        <json:json-to-object-transformer returnClass="com.cognizant.orchestration.dto.PushNotificationRQ" mapper-ref="objectMapper" doc:name="Create PushNotificationRequest"/>
         <validation:is-not-empty config-ref="Validation_Configuration" value="#[payload.identifier]" message="System Identifier cannot be empty, please provide a value" exceptionClass="com.cognizant.orchestration.exception.BookingApplException" doc:name="Validate System Identifier"/>
         <choice doc:name="Determine System Type">
             <when expression="payload.identifier == &quot;Airlines&quot;">
@@ -31,7 +31,7 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
             </when>
             <when expression="payload.identifier == &quot;Car Rental&quot;">
                 <async doc:name="Async">
-                    <flow-ref name="carRentalsSubFlow" doc:name="CarRentalsSubFlow"/>
+                    <flow-ref name="carRentalsSubFlow" doc:name="carRentalsSubFlow"/>
                 </async>
             </when>
             <otherwise>
@@ -41,16 +41,18 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
                 </scripting:transformer>
             </otherwise>
         </choice>
-        <dw:transform-message metadata:id="722ec85e-f73b-4607-bad9-3bbe22b85cb3" doc:name="Transform Message">
+        <dw:transform-message metadata:id="722ec85e-f73b-4607-bad9-3bbe22b85cb3" doc:name="Return Push Notification Success">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---
 {
-	message: "Thanks for your interest in our service,
+	responseMessage: "Thanks for your interest in our service,
 we will send you the desired information shortly!!!",
-	success: true
+	responseType: {
+		statusCode: 0
+	}
 } as :object {
-	class : "com.cognizant.orchestration.dto.BaseResponse"
+	class : "com.cognizant.orchestration.dto.PushNotificationRS"
 }]]></dw:set-payload>
         </dw:transform-message>
     </flow>
@@ -80,7 +82,7 @@ flowVars.token = payload.token]]></expression-component>
                 </dw:transform-message>
                 <http:request config-ref="POIServiceConfiguration" path="/api/info/getAllPointsOfInterest" method="POST" source="#[payload]" target="#[payload]" doc:name="Call POI Service"/>
                 <json:json-to-object-transformer returnClass="com.cognizant.client.dto.PointOfInterestResponse" mapper-ref="objectMapper" doc:name="Consume Point Of Interest Response from Service"/>
-                <dw:transform-message metadata:id="8ab36f3c-5243-4f35-84c6-05cb2f47994c" doc:name="Transform Message">
+                <dw:transform-message metadata:id="8ab36f3c-5243-4f35-84c6-05cb2f47994c" doc:name="Create Point Of Interest Response">
                     <dw:input-payload mimeType="application/java"/>
                     <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
@@ -125,7 +127,7 @@ payload.pointOfInterests map ((pointOfInterest , indexOfPointOfInterest) -> {
                 </dw:transform-message>
                 <http:request config-ref="HTTP_Request_Configuration" path="/api/info/getCurrentandFutureReservations" method="POST" source="#[payload]" target="#[payload]" sendBodyMode="ALWAYS" doc:name="Call Reservation Service"/>
                 <json:json-to-object-transformer returnClass="com.cognizant.client.dto.ReservationResponse" ignoreBadInput="true" mapper-ref="objectMapper" doc:name="Consume Reservation Response from Service"/>
-                <dw:transform-message metadata:id="fcceeded-94df-4d39-a7e4-eb4e590cbb3e" doc:name="Transform Message">
+                <dw:transform-message metadata:id="fcceeded-94df-4d39-a7e4-eb4e590cbb3e" doc:name="Create Reservation Response">
                     <dw:input-payload mimeType="application/java"/>
                     <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
@@ -157,7 +159,7 @@ payload.reservations map ((reservation , indexOfReservation) -> {
 
         </scatter-gather>
         <expression-component doc:name="Setting MemberId from FlowVars to Payload"><![CDATA[payload.memberId = flowVars.memberId;]]></expression-component>
-        <dw:transform-message doc:name="Transform Message" metadata:id="d0802031-9b84-4bbd-bc93-6ab231e17df9">
+        <dw:transform-message doc:name="Create FCM Request" metadata:id="d0802031-9b84-4bbd-bc93-6ab231e17df9">
             <dw:input-payload mimeType="application/java"/>
             <dw:input-variable mimeType="application/java" variableName="token"/>
             <dw:set-payload><![CDATA[%dw 1.0
@@ -187,7 +189,7 @@ payload.reservations map ((reservation , indexOfReservation) -> {
 	},
 	to: flowVars.token
 } as :object {
-	class : "com.cognizant.orchestration.dto.PushNotifyGCMRequest"
+	class : "com.cognizant.orchestration.dto.PushNotifyFcmRQ"
 }]]></dw:set-payload>
         </dw:transform-message>
         <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Log Payload Before GCM call"/>

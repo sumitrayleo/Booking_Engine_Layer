@@ -6,8 +6,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.cognizant.orchestration.dto.BaseResponse;
-import com.cognizant.orchestration.dto.PushNotificationRequest;
+import com.cognizant.orchestration.dto.PushNotificationRQ;
+import com.cognizant.orchestration.dto.PushNotificationRS;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,10 +22,10 @@ public class PushResource {
 
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON })
-	@ApiOperation(value = "Send Push Notification", response = BaseResponse.class)
+	@ApiOperation(value = "Send Push Notification", response = PushNotificationRS.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String sendPushNotification(
-			@ApiParam(value = "Push Notification Request", required = true) PushNotificationRequest pushNotificationRequest) {
+			@ApiParam(value = "Push Notification Request", required = true) PushNotificationRQ pushNotificationRequest) {
 
 		return "PushNotificationFlow";
 	}

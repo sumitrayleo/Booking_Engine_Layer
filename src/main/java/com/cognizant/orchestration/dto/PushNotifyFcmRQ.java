@@ -1,9 +1,9 @@
 package com.cognizant.orchestration.dto;
 
-public class PushNotifyGCMRequest {
+public class PushNotifyFcmRQ {
 
 	private String to;
-	private PushNotificationResponse data;
+	private PushNotificationSuccessRS data;
 	
 	public String getTo() {
 		return to;
@@ -11,10 +11,10 @@ public class PushNotifyGCMRequest {
 	public void setTo(String to) {
 		this.to = to;
 	}
-	public PushNotificationResponse getData() {
+	public PushNotificationSuccessRS getData() {
 		return data;
 	}
-	public void setData(PushNotificationResponse data) {
+	public void setData(PushNotificationSuccessRS data) {
 		this.data = data;
 	}
 	

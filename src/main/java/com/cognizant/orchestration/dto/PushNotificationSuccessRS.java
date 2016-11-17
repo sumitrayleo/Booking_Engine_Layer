@@ -2,7 +2,7 @@ package com.cognizant.orchestration.dto;
 
 import java.util.List;
 
-public class PushNotificationResponse {
+public class PushNotificationSuccessRS {
 
 	private String memberId;
 	private List<Reservation> reservations;

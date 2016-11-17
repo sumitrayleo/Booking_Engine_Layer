@@ -11,7 +11,7 @@
     "outputMessageMetadata": {
         "messagePayload": {
             "connectorName": "#_custom_mule_metadata_type_#",
-            "typeId": "RegisterDeviceResponse"
+            "typeId": "DeviceInformationRS"
         }
     },
     "id": "be996efb-6b4d-4b00-ac1d-1a259f6c716a",

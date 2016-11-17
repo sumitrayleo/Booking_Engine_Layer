@@ -4,12 +4,11 @@ import java.io.Serializable;
 
 import com.cognizant.orchestration.common.dto.ResponseMessageType;
 
-public class DeviceInformationRS implements Serializable{
+public class PushNotificationRS implements Serializable {
 
-	private static final long serialVersionUID = -7606056112567198976L;
+	private static final long serialVersionUID = -6303113295320429321L;
 	private ResponseMessageType responseType;
 	private String responseMessage;
-	private AssetInfo deviceInfo;
 
 	public ResponseMessageType getResponseType() {
 		return responseType;
@@ -26,12 +25,4 @@ public class DeviceInformationRS implements Serializable{
 	public void setResponseMessage(String responseMessage) {
 		this.responseMessage = responseMessage;
 	}
-
-	public AssetInfo getDeviceInfo() {
-		return deviceInfo;
-	}
-	
-	public void setDeviceInfo(AssetInfo deviceInfo) {
-		this.deviceInfo = deviceInfo;
-	} 
 }

@@ -3,7 +3,7 @@
     "outputMessageMetadata": {
         "messagePayload": {
             "connectorName": "#_custom_mule_metadata_type_#",
-            "typeId": "BaseResponse"
+            "typeId": "PushNotificationRS"
         }
     },
     "id": "722ec85e-f73b-4607-bad9-3bbe22b85cb3",

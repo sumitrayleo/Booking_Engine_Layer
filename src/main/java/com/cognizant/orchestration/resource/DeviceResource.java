@@ -8,9 +8,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.cognizant.orchestration.dto.BaseResponse;
 import com.cognizant.orchestration.dto.DeviceInformationRQ;
-import com.cognizant.orchestration.dto.RegisterDeviceResponse;
+import com.cognizant.orchestration.dto.DeviceInformationRS;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,7 +24,7 @@ public class DeviceResource {
 
 	@GET
 	@Path("/retrieveDeviceById")
-	@ApiOperation(value = "Finds device registration details by unique identifiers", response = RegisterDeviceResponse.class)
+	@ApiOperation(value = "Finds device registration details by unique identifiers", response = DeviceInformationRS.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String retrieveDeviceById(
 			@ApiParam(value = "Uuid to find", required = true) @QueryParam("uuid") String uuid,@ApiParam(value = "Region to find", required = true) @QueryParam("region") String region,@ApiParam(value = "Asset Id to find", required = true) @QueryParam("assetId") String assetId) {
@@ -36,7 +35,7 @@ public class DeviceResource {
 	@POST
 	@Path("/registerDevice")
 	@Consumes({ MediaType.APPLICATION_JSON })
-	@ApiOperation(value = "Register Device", response = BaseResponse.class)
+	@ApiOperation(value = "Register Device", response = DeviceInformationRS.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Please provide a valid input") })
 	public String registerDevice(
 			@ApiParam(value = "Device Details for Registration", required = true) DeviceInformationRQ device) {
