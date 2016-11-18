@@ -139,6 +139,12 @@ payload.reservations map ((reservation , indexOfReservation) -> {
 	category: reservation.category,
 	companyName: reservation.companyName,
 	companyWebsite: reservation.companyWebsite,
+	driveDistance: {
+		driveDistance: reservation.driveDistanceDetails.driveDistance as :number,
+		landMarkInstructions: reservation.driveDistanceDetails.landMarkInstructions,
+		latitude: reservation.driveDistanceDetails.latitude,
+		longitude: reservation.driveDistanceDetails.longitude
+	},
 	endDateTime: reservation.endDateTime,
 	promoOffers: {
 		loyaltyCode: reservation.promotionalOffers.loyaltyCode,

@@ -59,7 +59,12 @@
         "category": "Deluxe",
         "companyName": "ABC",
         "companyWebsite": "http://bbcs.com",
-        "driveDistance": null,
+        "driveDistance":  {
+        	"latitude": 67.5,
+         	"longitude": 89,
+        	"driveDistance": "2000.0",
+        	"landMarkInstructions": "Vehicle located at the Whole Foods Supermarket parking lot in Capitol Hill - 900 E. 11th Ave, at the corner of 11th Ave and Emerson.  The CarShare car is located on the west side of the building."
+        },
         "endDateTime": 1.4824908E9,
         "promoOffers": {
           "loyaltyCode": "FFF",
