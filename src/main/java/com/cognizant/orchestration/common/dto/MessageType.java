@@ -1,7 +1,10 @@
 package com.cognizant.orchestration.common.dto;
 
-public class MessageType {
+import java.io.Serializable;
 
+public class MessageType implements Serializable{
+
+	private static final long serialVersionUID = -6324177144399334301L;
 	private String code;
 	private String severity;
 	private String fieldName;

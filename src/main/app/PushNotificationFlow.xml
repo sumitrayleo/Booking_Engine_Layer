@@ -15,7 +15,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
     <http:request-config name="POIServiceConfiguration" host="localhost" port="8082" basePath="booking-engine-poi" doc:name="HTTP Request Configuration"/>
-    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8082" basePath="booking-engine-reservation" doc:name="HTTP Request Configuration" connectionIdleTimeout="3000000"/>
+    <http:request-config name="HTTP_Request_Reservation_Configuration" host="localhost" port="8082" basePath="booking-engine-reservation" doc:name="HTTP Request Configuration" connectionIdleTimeout="3000000"/>
     <http:request-config name="GCMConfiguration" protocol="HTTPS" host="gcm-http.googleapis.com" port="443" doc:name="HTTP Request Configuration">
     </http:request-config>
     <flow name="PushNotificationFlow">
@@ -125,7 +125,7 @@ payload.pointOfInterests map ((pointOfInterest , indexOfPointOfInterest) -> {
 	class : "com.cognizant.client.dto.ReservationRequest"
 }]]></dw:set-payload>
                 </dw:transform-message>
-                <http:request config-ref="HTTP_Request_Configuration" path="/api/info/getCurrentandFutureReservations" method="POST" source="#[payload]" target="#[payload]" sendBodyMode="ALWAYS" doc:name="Call Reservation Service"/>
+                <http:request config-ref="HTTP_Request_Reservation_Configuration" path="/api/info/getCurrentandFutureReservations" method="POST" source="#[payload]" target="#[payload]" sendBodyMode="ALWAYS" doc:name="Call Reservation Service"/>
                 <json:json-to-object-transformer returnClass="com.cognizant.client.dto.ReservationResponse" ignoreBadInput="true" mapper-ref="objectMapper" doc:name="Consume Reservation Response from Service"/>
                 <dw:transform-message metadata:id="fcceeded-94df-4d39-a7e4-eb4e590cbb3e" doc:name="Create Reservation Response">
                     <dw:input-payload mimeType="application/java"/>

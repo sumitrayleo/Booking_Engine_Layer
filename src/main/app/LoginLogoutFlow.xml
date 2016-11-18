@@ -51,7 +51,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
         </http:listener>
         <dw:transform-message metadata:id="8f98378d-3b77-4c35-9f2c-87c356817ae6" doc:name="Return LogoutRS">
             <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
+%output application/json
 ---
 {
 	responseMessage: "You have been successfully logged out",

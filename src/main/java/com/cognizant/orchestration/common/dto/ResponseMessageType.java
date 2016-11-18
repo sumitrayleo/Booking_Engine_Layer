@@ -1,9 +1,11 @@
 package com.cognizant.orchestration.common.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ResponseMessageType {
+public class ResponseMessageType implements Serializable{
 
+	private static final long serialVersionUID = 8222676967377470362L;
 	private int statusCode;
 	private List<MessageType> messages;
 	private String technicalMessages;

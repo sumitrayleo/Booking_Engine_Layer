@@ -66,7 +66,7 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 					returnClass="com.cognizant.orchestration.dto.DeviceInformationRQ"
 					mapper-ref="objectMapper" doc:name="Create Device Information Request" />
 
-					<invoke name="Read File Content" object-ref="readDeviceInfo"
+					<invoke name="Read_File_Content" object-ref="readDeviceInfo"
 			method="readDeviceInformation" methodArguments="${filePath}/deviceMapping.json,   #[payload]"
 			methodArgumentTypes="java.lang.String, com.cognizant.orchestration.dto.DeviceInformationRQ" doc:name="Read Device Information From File" />
 		
@@ -114,7 +114,7 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 			message="Please specify the Device Id" exceptionClass="com.cognizant.orchestration.exception.BookingApplException"
 			doc:name="Check empty Device Id" />
 
-		<invoke name="Retrieve Device Info from File" object-ref="retrieveFileContent"
+		<invoke name="Retrieve_Device_Info_from_File" object-ref="retrieveFileContent"
 			method="getFileContent" methodArguments="${filePath}/deviceMapping.json, #[message.inboundProperties['http.query.params'].assetId],  #[message.inboundProperties['http.query.params'].uuid],  #[message.inboundProperties['http.query.params'].region]"
 			methodArgumentTypes="java.lang.String, java.lang.String, java.lang.String, java.lang.String" doc:name="Retrieve Device Information from File" />
 		<choice doc:name="Forward Device Info for Transformation, If empty throw Exception">
@@ -137,8 +137,7 @@ http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/e
 	},
 	responseType: {
 		statusCode: 0
-	},
-	success: true
+	}
 } as :object {
 	class : "com.cognizant.orchestration.dto.DeviceInformationRS"
 }]]></dw:set-payload>
