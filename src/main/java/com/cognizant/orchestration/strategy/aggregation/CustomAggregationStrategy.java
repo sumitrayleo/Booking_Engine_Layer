@@ -21,6 +21,7 @@ public class CustomAggregationStrategy implements AggregationStrategy {
 		final List<MuleEvent> muleEvents = context.collectEventsWithoutExceptions();
 		MuleEvent result = null;
 		for (final MuleEvent muleEvent : muleEvents) {
+			if(muleEvent!=null){
 			final Object payload = muleEvent.getMessage().getPayload();
 			if (payload instanceof List) {
 				
@@ -44,6 +45,7 @@ public class CustomAggregationStrategy implements AggregationStrategy {
 				
 			}
 		}
+	}
 		if(result!=null){
 			result.getMessage().setPayload(pushNotificationResponse);
 		}
