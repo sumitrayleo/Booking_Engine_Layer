@@ -187,6 +187,9 @@ payload.callingIdentity = flowVars.callingIdentity;
 
 if(payload.callingIdentity == "BM"){
 
+poi = new ArrayList();
+payload.poi = poi;
+
 reservations = new ArrayList();
 res = payload.reservations[0];
 res.vehicleNo = flowVars.vehicleNo;
