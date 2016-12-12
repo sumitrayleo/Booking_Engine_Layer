@@ -13,6 +13,8 @@ public class PushNotificationRequest {
     @ApiModelProperty(value = "System Identifier", allowableValues = "Airlines,Hotels,Car Rental")
     private String identifier;
     private String token;
+    private String vehicleNo;
+    private String vehLandmarkInstructions;
 
     public String getMemberId() {
         return memberId;
@@ -59,5 +61,21 @@ public class PushNotificationRequest {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public String getVehicleNo() {
+		return vehicleNo;
+	}
+
+	public void setVehicleNo(String vehicleNo) {
+		this.vehicleNo = vehicleNo;
+	}
+
+	public String getVehLandmarkInstructions() {
+		return vehLandmarkInstructions;
+	}
+
+	public void setVehLandmarkInstructions(String vehLandmarkInstructions) {
+		this.vehLandmarkInstructions = vehLandmarkInstructions;
 	}
 }

@@ -12,6 +12,7 @@ public class Reservation {
 	private PromotionalOffer promoOffers;
 	private Distance driveDistance;
 	private String specialInstructions;
+	private String vehicleNo;
 	
 	public String getReservationId() {
 		return reservationId;
@@ -72,5 +73,13 @@ public class Reservation {
 	}
 	public void setSpecialInstructions(String specialInstructions) {
 		this.specialInstructions = specialInstructions;
+	}
+	
+	public String getVehicleNo() {
+		return vehicleNo;
+	}
+
+	public void setVehicleNo(String vehicleNo) {
+		this.vehicleNo = vehicleNo;
 	}
 }

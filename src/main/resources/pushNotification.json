@@ -1,0 +1,93 @@
+{
+    "memberId": "1",
+    "poi": [
+      {
+        "driveDistance": {
+          "driveDistance": 20.0,
+          "landMarkInstructions": "Located at \n6300 Clayton Rd, St. Louis, MO 63117\n",
+          "latitude": 88.5,
+          "longitude": 33.4
+        },
+        "name": "Starbucks",
+        "promoOffers": {
+          "loyaltyCode": "FFF",
+          "rules": [
+            {
+              "description": "Complimentary discount dinner and breakfast",
+              "discount": 20.0,
+              "promoCodeId": "1",
+              "discountType": "percentage",
+              "category": "Discount"
+            },
+            {
+              "description": "Free coupon for new customers",
+              "discount": 25.0,
+              "promoCodeId": "2",
+              "discountType": "dollar",
+              "category": "Offer"
+            }
+          ]
+        },
+        "specialInstructions": "Opens at 5.30 am"
+      },
+      {
+        "driveDistance": {
+          "driveDistance": 8.0,
+          "landMarkInstructions": "Located at 1005 McCausland Ave, St. Louis, MO 63117\n",
+          "latitude": 109.5,
+          "longitude": 112.4
+        },
+        "name": "Hi-Pointe Theatre",
+        "promoOffers": {
+          "loyaltyCode": "EDC",
+          "rules": [
+            {
+              "description": "Discount on five or more tickets",
+              "discount": 14.0,
+              "promoCodeId": "3",
+              "discountType": "percentgae",
+              "category": "Discount"
+            }
+          ]
+        },
+        "specialInstructions": "Opens at 4 pm"
+      }
+    ],
+    "reservations": [
+      {
+        "bookingPrice": 30.6,
+        "category": "Deluxe",
+        "companyName": "ABC",
+        "companyWebsite": "http://bbcs.com",
+        "driveDistance":  {
+        	"latitude": 67.5,
+         	"longitude": 89,
+        	"driveDistance": "2000.0",
+        	"landMarkInstructions": "Vehicle located at the Whole Foods Supermarket parking lot in Capitol Hill - 900 E. 11th Ave, at the corner of 11th Ave and Emerson.  The CarShare car is located on the west side of the building."
+        },
+        "endDateTime": 1.4824908E9,
+        "promoOffers": {
+          "loyaltyCode": "FFF",
+          "rules": [
+            {
+              "description": "Application discount",
+              "discount": 20.0,
+              "promoCodeId": "1",
+              "discountType": "percentage",
+              "category": "ECAR"
+            },
+            {
+              "description": "Application renewal discount",
+              "discount": 25.0,
+              "promoCodeId": "2",
+              "discountType": "dollar",
+              "category": "CCAR"
+            }
+          ]
+        },
+        "reservationId": "93961",
+        "specialInstructions": "Members: Please DO NOT lock the doors with the actual keys (or with the keylock on the inside of the door) when you exit the vehicle at the end of your reservation time. Instead, the doors need to be locked by using your membership card.",
+        "startDateTime": 1.4824044E9
+      }
+    ]
+  }

@@ -6,8 +6,8 @@ public class PushNotificationResponse {
 
 	private String memberId;
 	private List<Reservation> reservations;
-	//private NearbyAirport nearbyAirport;//@TODO - This will be handled later on.
 	private List<PointOfInterest> poi;
+	private String callingIdentity;
 	
 	public String getMemberId() {
 		return memberId;
@@ -26,6 +26,12 @@ public class PushNotificationResponse {
 	}
 	public void setPoi(List<PointOfInterest> poi) {
 		this.poi = poi;
+	}
+	public String getCallingIdentity() {
+		return callingIdentity;
+	}
+	public void setCallingIdentity(String callingIdentity) {
+		this.callingIdentity = callingIdentity;
 	}
 	
 }

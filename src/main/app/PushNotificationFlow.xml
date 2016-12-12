@@ -18,6 +18,9 @@ http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/em
     <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8082" basePath="booking-engine-reservation" doc:name="HTTP Request Configuration" connectionIdleTimeout="3000000"/>
     <http:request-config name="GCMConfiguration" protocol="HTTPS" host="gcm-http.googleapis.com" port="443" doc:name="HTTP Request Configuration">
     </http:request-config>
+    <spring:beans>
+        <spring:bean id="readPushNotificationResponse" name="readPushNotificationResponse" class="com.cognizant.util.PopulateStaticPushNotificationRS"/>
+    </spring:beans>
     <flow name="PushNotificationFlow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/api/booking/notify/info" allowedMethods="POST" doc:name="Recieve Push Notification Request"/>
         <json:json-to-object-transformer returnClass="com.cognizant.orchestration.dto.PushNotificationRequest" mapper-ref="objectMapper" doc:name="Create PushNotificationRequest"/>
@@ -57,13 +60,18 @@ we will send you the desired information shortly!!!",
     <sub-flow name="carRentalsSubFlow">
         <set-payload value="#[payload]" doc:name="Set Payload"/>
         <expression-component doc:name="Set Member Id and App Registration Token in Flow Vars"><![CDATA[flowVars.memberId = payload.memberId;
-flowVars.token = payload.token]]></expression-component>
+flowVars.token = payload.token;
+flowVars.callingIdentity = message.inboundProperties['Calling_Identity'];
+flowVars.vehicleNo = payload.vehicleNo;
+flowVars.vehLandmarkInstructions = payload.vehLandmarkInstructions;]]></expression-component>
 
-
-        <scatter-gather doc:name="Scatter-Gather">
+   <choice doc:name="Determine System Type">
+            <when expression="#['${gcm.flow}'== true]">
+       <scatter-gather doc:name="Scatter-Gather" >
             <custom-aggregation-strategy class="com.cognizant.orchestration.strategy.aggregation.CustomAggregationStrategy"/>
             <threading-profile maxThreadsActive="2" maxThreadsIdle="2" poolExhaustedAction="DISCARD_OLDEST" maxBufferSize="2"/>
             <processor-chain >
+                        <expression-filter expression="#[message.inboundProperties['Calling_Identity']==&quot;MA&quot;]" doc:name="Expression"/>
                 <dw:transform-message metadata:id="c282339a-f56e-40b7-b988-eeb31409da82" doc:name="Create PointOfInterestRequest">
                     <dw:input-payload mimeType="application/java"/>
                     <dw:set-payload><![CDATA[%dw 1.0
@@ -110,6 +118,7 @@ payload.pointOfInterests map ((pointOfInterest , indexOfPointOfInterest) -> {
                 </dw:transform-message>
             </processor-chain>
             <processor-chain >
+                        <expression-filter expression="#[message.inboundProperties['Calling_Identity']==&quot;MA&quot; || message.inboundProperties['Calling_Identity']==&quot;BM&quot;]" doc:name="Expression"/>
                 <dw:transform-message metadata:id="8c933cce-b332-40b9-b36e-075b81ea8344" doc:name="Create ReservationRequest">
                     <dw:input-payload doc:sample="sample_data\PointOfInterestRequest.dwl" mimeType="application/java"/>
                     <dw:set-payload><![CDATA[%dw 1.0
@@ -162,7 +171,37 @@ payload.reservations map ((reservation , indexOfReservation) -> {
             </processor-chain>
 
         </scatter-gather>
-        <expression-component doc:name="Setting MemberId from FlowVars to Payload"><![CDATA[payload.memberId = flowVars.memberId;]]></expression-component>
+        </when>
+        <otherwise>
+        	<invoke name="RetrieveSampleFileContent" object-ref="readPushNotificationResponse"
+			method="getSampleFileContent" doc:name="RetrieveFileContent" />
+        
+        </otherwise>
+       
+	 </choice>
+
+        <expression-component doc:name="Set Essential Values to Payload"><![CDATA[import java.util.ArrayList;
+
+payload.memberId = flowVars.memberId;
+payload.callingIdentity = flowVars.callingIdentity;
+
+if(payload.callingIdentity == "BM"){
+
+poi = new ArrayList();
+payload.poi = poi;
+
+reservations = new ArrayList();
+res = payload.reservations[0];
+res.vehicleNo = flowVars.vehicleNo;
+res.specialInstructions = flowVars.vehLandmarkInstructions;
+res.promoOffers = null;
+reservations.add(res);
+payload.reservations = reservations;
+
+}]]></expression-component>
+
+
+        
         <dw:transform-message doc:name="Transform Message" metadata:id="d0802031-9b84-4bbd-bc93-6ab231e17df9">
             <dw:input-payload mimeType="application/java"/>
             <dw:input-variable mimeType="application/java" variableName="token"/>
@@ -172,12 +211,14 @@ payload.reservations map ((reservation , indexOfReservation) -> {
 {
 	data: {
 		memberId: payload.memberId,
+		callingIdentity: payload.callingIdentity,
 		poi: payload.poi map ((poi , indexOfPoi) -> {
 			driveDistance: poi.driveDistance,
 			name: poi.name,
 			promoOffers: poi.promoOffers,
 			specialInstructions: poi.specialInstructions
-		}),
+		}) when (not payload.poi is :null) 
+		otherwise {},
 		reservations: payload.reservations map ((reservation , indexOfReservation) -> {
 			bookingPrice: reservation.bookingPrice,
 			category: reservation.category,
@@ -188,6 +229,7 @@ payload.reservations map ((reservation , indexOfReservation) -> {
 			promoOffers: reservation.promoOffers,
 			reservationId: reservation.reservationId,
 			specialInstructions: reservation.specialInstructions,
+			vehicleNo: reservation.vehicleNo,
 			startDateTime: reservation.startDateTime
 		})
 	},
@@ -201,6 +243,7 @@ payload.reservations map ((reservation , indexOfReservation) -> {
             <http:request-builder>
                 <http:header headerName="content-type" value="application/json"/>
                 <http:header headerName="authorization" value="key=${fcm.server.key}"/>
+
 
 
 
